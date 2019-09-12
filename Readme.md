@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Кирилл Фриауф](https://up.htmlacademy.ru/javascript/18/user/1093651).
-* Наставник: `Неизвестно`.
+* Наставник: [Константин Полянский](https://htmlacademy.ru/profile/id1138729).
 
 ---
 
