@@ -1,8 +1,9 @@
 /* eslint-disable no-invalid-this */
 'use strict';
 
+var Y_MIN = 130;
+var Y_MAX = 630;
 var maxX = document.querySelector('.map__overlay').clientWidth;
-var Y_AXIS = [130, 630];
 
 var removeClass = function (selector, className) {
   document.querySelector(selector).classList.remove(className);
@@ -72,7 +73,7 @@ var generateAdverts = function (number) {
       },
       location: {
         x: getRandomNumber(0, maxX),
-        y: getRandomNumber(Y_AXIS[0], Y_AXIS[1])
+        y: getRandomNumber(Y_MIN, Y_MAX)
       }
     };
     advert.offer.address = advert.location.x + ', ' + advert.location.y + '.';
