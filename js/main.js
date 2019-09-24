@@ -1,9 +1,16 @@
-/* eslint-disable no-invalid-this */
 'use strict';
 
 var Y_MIN = 130;
 var Y_MAX = 630;
+var PIN_HEIGHT = 70;
+var PIN_WIDTH = 50;
 var maxX = document.querySelector('.map__overlay').clientWidth;
+var AccommodationType = {
+  flat: 'Квартира',
+  bungalo: 'Бунгало',
+  house: 'Дом',
+  palace: 'Дворец'
+};
 
 var removeClass = function (selector, className) {
   document.querySelector(selector).classList.remove(className);
@@ -16,7 +23,7 @@ var getRandomNumber = function (min, max) {
 };
 
 var getRandomItemOfArray = function (arr) {
-  return arr[getRandomNumber(arr.length)];
+  return arr[getRandomNumber(0, arr.length - 1)];
 };
 
 function getMaxItemOfArray(arr) {
@@ -38,8 +45,8 @@ var shuffleArray = function (array) {
   return array;
 };
 
-var getRandomSizeForArray = function (array) {
-  var lastITem = getRandomNumber(0, array.length);
+var getRandomSliceForArray = function (array) {
+  var lastITem = getRandomNumber(1, array.length);
   return array.slice(0, lastITem);
 };
 
@@ -68,8 +75,8 @@ var generateAdverts = function (number) {
         guests: getRandomItemOfArray(guests),
         checkin: getRandomItemOfArray(controlHours),
         checkout: getRandomItemOfArray(controlHours),
-        features: getRandomSizeForArray(shuffleArray(features)),
-        photos: getRandomSizeForArray(shuffleArray(photos))
+        features: getRandomSliceForArray(shuffleArray(features)),
+        photos: getRandomSliceForArray(shuffleArray(photos))
       },
       location: {
         x: getRandomNumber(0, maxX),
@@ -77,7 +84,7 @@ var generateAdverts = function (number) {
       }
     };
     advert.offer.address = advert.location.x + ', ' + advert.location.y + '.';
-    advert.offer.description = 'Замечательный ' + advert.offer.type + ' для вашего отдыха всего за ' + advert.offer.prices;
+    advert.offer.description = 'Замечательный ' + advert.offer.type + ' для вашего отдыха всего за ' + advert.offer.price;
     adverts.push(advert);
   }
 
@@ -86,26 +93,76 @@ var generateAdverts = function (number) {
 
 var adverts = generateAdverts(8);
 
-// странное колдунство и манипуляции с домом
 var addPinToMap = function (advert) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
-  var locationX = advert.location.x - pinElement.clientWidth / 2;
-  var locationY = advert.location.y - pinElement.clientHeight;
 
-  pinElement.setAttribute('style', 'left: ' + (locationX) + 'px; top: ' + (locationY) + 'px;');
+  pinElement.setAttribute('style', 'left: ' + (advert.location.x - PIN_WIDTH / 2) + 'px; top: ' + (advert.location.y - PIN_HEIGHT) + 'px;');
   pinElement.querySelector('img').alt = advert.offer.title;
   pinElement.querySelector('img').src = advert.author.avatar;
 
   return pinElement;
 };
 
+var setElementTextContent = function (parentElement, selector, value) {
+  parentElement.querySelector(selector).textContent = value;
+};
+
+// В комментариях к пулл-реквесту расписал почему не стал делать функцию по текст.котент.
+var createCardInfo = function (advert) {
+  var checkinTime = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
+  var capacity = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
+  var pricePerNight = advert.offer.price + '₽/ночь.';
+  var cardTemplate = document.querySelector('#card').content.querySelector('article');
+  var cardElement = cardTemplate.cloneNode(true);
+  var featuresList = cardElement.querySelector('.popup__features');
+  var photosGallery = cardElement.querySelector('.popup__photos');
+
+  var listItemTemplate = document.createElement('li');
+  listItemTemplate.classList.add('popup__feature');
+
+  var photoItemTemplate = document.createElement('img');
+  photoItemTemplate.setAttribute('class', 'popup-photo');
+  photoItemTemplate.setAttribute('height', '40');
+  photoItemTemplate.setAttribute('width', '45');
+
+  cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
+  setElementTextContent(cardElement, '.popup__title', advert.offer.title)
+  setElementTextContent(cardElement, '.popup__description', advert.offer.description)
+  setElementTextContent(cardElement, '.popup__text--time', )
+  setElementTextContent(cardElement, '.popup__text--capacity', capacity)
+  setElementTextContent(cardElement, '.popup__text--address', advert.offer.address)
+  setElementTextContent(cardElement, '.popup__text--price', pricePerNight)
+  setElementTextContent(cardElement, '.popup__type', AccommodationType[advert.offer.type])
+  featuresList.innerHTML = '';
+  photosGallery.innerHTML = '';
+
+  for (var i = 0; i < advert.offer.features.length; i++) {
+    var listItem = listItemTemplate.cloneNode(true);
+    listItem.classList.add('popup__feature--' + advert.offer.features[i]);
+    featuresList.appendChild(listItem);
+  }
+
+  for (i = 0; i < advert.offer.photos.length; i++) {
+    var photoItem = photoItemTemplate.cloneNode(true);
+    photoItem.setAttribute('src', advert.offer.photos[i]);
+    photosGallery.appendChild(photoItem);
+  }
+
+  return cardElement;
+};
+
 // используем фрагмент
 var similarListElement = document.querySelector('.map__pins');
-var fragment = document.createDocumentFragment();
+var parentForCards = document.querySelector('.map');
+var fragmentPins = document.createDocumentFragment();
+var fragmentCards = document.createDocumentFragment();
+
 
 for (var i = 0; i < adverts.length; i++) {
-  fragment.appendChild(addPinToMap(adverts[i]));
+  fragmentPins.appendChild(addPinToMap(adverts[i]));
 }
 
-similarListElement.appendChild(fragment);
+fragmentCards.appendChild(createCardInfo(adverts[0]));
+similarListElement.appendChild(fragmentPins);
+parentForCards.insertBefore(fragmentCards, parentForCards.querySelector('.map__filters-container'));
