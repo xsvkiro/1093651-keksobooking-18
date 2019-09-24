@@ -1,4 +1,3 @@
-/* eslint-disable no-invalid-this */
 'use strict';
 
 var Y_MIN = 130;
@@ -6,6 +5,12 @@ var Y_MAX = 630;
 var PIN_HEIGHT = 70;
 var PIN_WIDTH = 50;
 var maxX = document.querySelector('.map__overlay').clientWidth;
+var TypeDict = {
+  flat: 'Квартира',
+  bungalo: 'Бунгало',
+  house: 'Дом',
+  palace: 'Дворец'
+};
 
 var removeClass = function (selector, className) {
   document.querySelector(selector).classList.remove(className);
@@ -40,7 +45,7 @@ var shuffleArray = function (array) {
   return array;
 };
 
-var getRandomSizeForArray = function (array) {
+var getRandomSliceForArray = function (array) {
   var lastITem = getRandomNumber(1, array.length);
   return array.slice(0, lastITem);
 };
@@ -70,8 +75,8 @@ var generateAdverts = function (number) {
         guests: getRandomItemOfArray(guests),
         checkin: getRandomItemOfArray(controlHours),
         checkout: getRandomItemOfArray(controlHours),
-        features: getRandomSizeForArray(shuffleArray(features)),
-        photos: getRandomSizeForArray(shuffleArray(photos))
+        features: getRandomSliceForArray(shuffleArray(features)),
+        photos: getRandomSliceForArray(shuffleArray(photos))
       },
       location: {
         x: getRandomNumber(0, maxX),
@@ -88,7 +93,6 @@ var generateAdverts = function (number) {
 
 var adverts = generateAdverts(8);
 
-// странное колдунство и манипуляции с домом
 var addPinToMap = function (advert) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
@@ -100,27 +104,15 @@ var addPinToMap = function (advert) {
   return pinElement;
 };
 
-// asdasdasdadasdasdasdasdasd
-var addCardInfo = function (advert) {
-  var typeDict = {
-    flat: 'Квартира',
-    bungalo: 'Бунгало',
-    house: 'Дом',
-    palace: 'Дворец'
-  };
-  var featuresDyct = {
-    wifi: 'popup__feature--wifi',
-    dishwasher: 'popup__feature--dishwasher',
-    parking: 'popup__feature--parking',
-    elevator: 'popup__feature--elevator',
-    washer: 'popup__feature--washer',
-    conditioner: 'popup__feature--conditioner'
-  };
+// В комментариях к пулл-реквесту расписал почему не стал делать функцию по текст.котент.
+var createCardInfo = function (advert) {
+
   var cardTemplate = document.querySelector('#card').content.querySelector('article');
   var cardElement = cardTemplate.cloneNode(true);
   var featuresList = cardElement.querySelector('.popup__features');
   var photosGallery = cardElement.querySelector('.popup__photos');
-
+  var listItemTemplate = document.createElement('li');
+  var photoItemTemplate = document.createElement('IMG');
 
   cardElement.querySelector('.popup__title').textContent = advert.offer.title;
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
@@ -129,20 +121,22 @@ var addCardInfo = function (advert) {
   cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
   cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
   cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь.';
-  cardElement.querySelector('.popup__type').textContent = typeDict[advert.offer.type];
+  cardElement.querySelector('.popup__type').textContent = TypeDict[advert.offer.type];
+  listItemTemplate.classList.add('popup__feature');
+  photoItemTemplate.setAttribute('class', 'popup-photo');
+  photoItemTemplate.setAttribute('height', '40');
+  photoItemTemplate.setAttribute('width', '45');
   featuresList.innerHTML = '';
   photosGallery.innerHTML = '';
 
   for (var i = 0; i < advert.offer.features.length; i++) {
-    var listItem = document.createElement('LI');
-    featuresList.appendChild(listItem).className = 'popup__feature ' + featuresDyct[advert.offer.features[i]];
+    var listItem = listItemTemplate.cloneNode(true);
+    listItem.classList.add('popup__feature--' + advert.offer.features[i]);
+    featuresList.appendChild(listItem);
   }
 
   for (i = 0; i < advert.offer.photos.length; i++) {
-    var photoItem = document.createElement('IMG');
-    photoItem.setAttribute('class', 'popup-photo');
-    photoItem.setAttribute('height', '40');
-    photoItem.setAttribute('width', '45');
+    var photoItem = photoItemTemplate.cloneNode(true);
     photoItem.setAttribute('src', advert.offer.photos[i]);
     photosGallery.appendChild(photoItem);
   }
@@ -161,6 +155,6 @@ for (var i = 0; i < adverts.length; i++) {
   fragmentPins.appendChild(addPinToMap(adverts[i]));
 }
 
-fragmentCards.appendChild(addCardInfo(adverts[0]));
+fragmentCards.appendChild(createCardInfo(adverts[0]));
 similarListElement.appendChild(fragmentPins);
 parentForCards.insertBefore(fragmentCards, parentForCards.querySelector('.map__filters-container'));
