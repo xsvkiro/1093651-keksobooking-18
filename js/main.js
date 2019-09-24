@@ -5,7 +5,7 @@ var Y_MAX = 630;
 var PIN_HEIGHT = 70;
 var PIN_WIDTH = 50;
 var maxX = document.querySelector('.map__overlay').clientWidth;
-var TypeDict = {
+var AccommodationType = {
   flat: 'Квартира',
   bungalo: 'Бунгало',
   house: 'Дом',
@@ -104,28 +104,36 @@ var addPinToMap = function (advert) {
   return pinElement;
 };
 
+var setElementTextContent = function (parentElement, selector, value) {
+  parentElement.querySelector(selector).textContent = value;
+};
+
 // В комментариях к пулл-реквесту расписал почему не стал делать функцию по текст.котент.
 var createCardInfo = function (advert) {
-
+  var checkinTime = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
+  var capacity = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
+  var pricePerNight = advert.offer.price + '₽/ночь.';
   var cardTemplate = document.querySelector('#card').content.querySelector('article');
   var cardElement = cardTemplate.cloneNode(true);
   var featuresList = cardElement.querySelector('.popup__features');
   var photosGallery = cardElement.querySelector('.popup__photos');
-  var listItemTemplate = document.createElement('li');
-  var photoItemTemplate = document.createElement('IMG');
 
-  cardElement.querySelector('.popup__title').textContent = advert.offer.title;
-  cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
-  cardElement.querySelector('.popup__description').textContent = advert.offer.description;
-  cardElement.querySelector('.popup__text--time').textContent = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
-  cardElement.querySelector('.popup__text--capacity').textContent = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
-  cardElement.querySelector('.popup__text--address').textContent = advert.offer.address;
-  cardElement.querySelector('.popup__text--price').textContent = advert.offer.price + '₽/ночь.';
-  cardElement.querySelector('.popup__type').textContent = TypeDict[advert.offer.type];
+  var listItemTemplate = document.createElement('li');
   listItemTemplate.classList.add('popup__feature');
+
+  var photoItemTemplate = document.createElement('img');
   photoItemTemplate.setAttribute('class', 'popup-photo');
   photoItemTemplate.setAttribute('height', '40');
   photoItemTemplate.setAttribute('width', '45');
+
+  cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
+  setElementTextContent(cardElement, '.popup__title', advert.offer.title)
+  setElementTextContent(cardElement, '.popup__description', advert.offer.description)
+  setElementTextContent(cardElement, '.popup__text--time', )
+  setElementTextContent(cardElement, '.popup__text--capacity', capacity)
+  setElementTextContent(cardElement, '.popup__text--address', advert.offer.address)
+  setElementTextContent(cardElement, '.popup__text--price', pricePerNight)
+  setElementTextContent(cardElement, '.popup__type', AccommodationType[advert.offer.type])
   featuresList.innerHTML = '';
   photosGallery.innerHTML = '';
 
