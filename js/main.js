@@ -1,9 +1,16 @@
 'use strict';
 
+var ENTER_KEYCODE = 13;
 var Y_MIN = 130;
 var Y_MAX = 630;
 var PIN_HEIGHT = 70;
 var PIN_WIDTH = 50;
+var MAIN_BUTTON_SIDE = 65;
+var MAIN_PIN_HEIGHT = 22;
+// пытался получить координаты, вместо константы, но getboundingclientrect() возвращает координаты только относительно окна браузера, а не абсолютную позицию. метод описанный в учебнике
+// тоже не сработал (box.top + pageYOffset и box.left + pageXOffset)
+var X_MAIN_PIN_POSITION = 570;
+var Y_MAIN_PIN_POSITION = 375;
 var maxX = document.querySelector('.map__overlay').clientWidth;
 var AccommodationType = {
   flat: 'Квартира',
@@ -11,12 +18,46 @@ var AccommodationType = {
   house: 'Дом',
   palace: 'Дворец'
 };
+var advertForm = document.querySelector('.ad-form');
+var filters = document.querySelectorAll('.map__filter');
+var advertElements = advertForm.getElementsByTagName('fieldset');
+var mainPin = document.querySelector('.map__pin--main');
+var addressInput = document.querySelector('#address');
+var guestsOptions = advertForm.querySelector('#capacity').getElementsByTagName('option');
+var selectRoom = advertForm.querySelector('#room_number');
+var selectGuest = advertForm.querySelector('#capacity');
 
-var removeClass = function (selector, className) {
-  document.querySelector(selector).classList.remove(className);
+// получаем координаты главного пина
+var getMainPinCoordinates = function (pageState) {
+  var address;
+
+  if (pageState === 'active') {
+    address = (X_MAIN_PIN_POSITION + Math.floor(MAIN_BUTTON_SIDE / 2)) + ', ' + (Y_MAIN_PIN_POSITION + MAIN_PIN_HEIGHT + Math.floor(MAIN_BUTTON_SIDE / 2));
+  } else {
+    address = (X_MAIN_PIN_POSITION + Math.floor(MAIN_BUTTON_SIDE / 2)) + ', ' + (Y_MAIN_PIN_POSITION + Math.floor(MAIN_BUTTON_SIDE / 2));
+  }
+  return address;
 };
 
-removeClass('.map', 'map--faded');
+// делаем неактивную страницу
+var deactivatePage = function () {
+  document.querySelector('.map__filters').setAttribute('disabled', 'disabled');
+
+  for (var i = 0; i < advertElements.length; i++) {
+    advertElements[i].setAttribute('disabled', 'disabled');
+  }
+
+  for (i = 0; i < filters.length; i++) {
+    filters[i].setAttribute('disabled', 'disabled');
+  }
+  addressInput.setAttribute('placeholder', getMainPinCoordinates());
+};
+
+deactivatePage();
+
+var setElementTextContent = function (parentElement, selector, value) {
+  parentElement.querySelector(selector).textContent = value;
+};
 
 var getRandomNumber = function (min, max) {
   return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + min;
@@ -104,11 +145,6 @@ var addPinToMap = function (advert) {
   return pinElement;
 };
 
-var setElementTextContent = function (parentElement, selector, value) {
-  parentElement.querySelector(selector).textContent = value;
-};
-
-// В комментариях к пулл-реквесту расписал почему не стал делать функцию по текст.котент.
 var createCardInfo = function (advert) {
   var checkinTime = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
   var capacity = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
@@ -127,13 +163,13 @@ var createCardInfo = function (advert) {
   photoItemTemplate.setAttribute('width', '45');
 
   cardElement.querySelector('.popup__avatar').src = advert.author.avatar;
-  setElementTextContent(cardElement, '.popup__title', advert.offer.title)
-  setElementTextContent(cardElement, '.popup__description', advert.offer.description)
-  setElementTextContent(cardElement, '.popup__text--time', )
-  setElementTextContent(cardElement, '.popup__text--capacity', capacity)
-  setElementTextContent(cardElement, '.popup__text--address', advert.offer.address)
-  setElementTextContent(cardElement, '.popup__text--price', pricePerNight)
-  setElementTextContent(cardElement, '.popup__type', AccommodationType[advert.offer.type])
+  setElementTextContent(cardElement, '.popup__title', advert.offer.title);
+  setElementTextContent(cardElement, '.popup__description', advert.offer.description);
+  setElementTextContent(cardElement, '.popup__text--time', checkinTime);
+  setElementTextContent(cardElement, '.popup__text--capacity', capacity);
+  setElementTextContent(cardElement, '.popup__text--address', advert.offer.address);
+  setElementTextContent(cardElement, '.popup__text--price', pricePerNight);
+  setElementTextContent(cardElement, '.popup__type', AccommodationType[advert.offer.type]);
   featuresList.innerHTML = '';
   photosGallery.innerHTML = '';
 
@@ -158,11 +194,69 @@ var parentForCards = document.querySelector('.map');
 var fragmentPins = document.createDocumentFragment();
 var fragmentCards = document.createDocumentFragment();
 
+// делаем активную страницу
+var activatePageHandler = function () {
+  document.querySelector('.map__filters').removeAttribute('disabled');
+  document.querySelector('.map').classList.remove('map--faded');
+  advertForm.classList.remove('ad-form--disabled');
 
-for (var i = 0; i < adverts.length; i++) {
-  fragmentPins.appendChild(addPinToMap(adverts[i]));
-}
+  for (var i = 0; i < advertElements.length; i++) {
+    advertElements[i].removeAttribute('disabled');
+  }
 
-fragmentCards.appendChild(createCardInfo(adverts[0]));
-similarListElement.appendChild(fragmentPins);
-parentForCards.insertBefore(fragmentCards, parentForCards.querySelector('.map__filters-container'));
+  for (i = 0; i < filters.length; i++) {
+    filters[i].removeAttribute('disabled');
+  }
+
+  for (i = 0; i < adverts.length; i++) {
+    fragmentPins.appendChild(addPinToMap(adverts[i]));
+  }
+
+  similarListElement.appendChild(fragmentPins);
+  fragmentCards.appendChild(createCardInfo(adverts[0]));
+  parentForCards.insertBefore(fragmentCards, parentForCards.querySelector('.map__filters-container'));
+  addressInput.setAttribute('placeholder', getMainPinCoordinates('active'));
+};
+
+var pressEnterOnPinHandler = function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    activatePageHandler();
+  }
+  // здесь добавлен вызов для того, чтобы не было не соответствия вызванного дефолтными значениями выбранными (1 комната выбрана, 3 гостя выбрано).
+  guestsValdationHandler();
+};
+
+mainPin.addEventListener('mousedown', activatePageHandler);
+
+mainPin.addEventListener('keydown', pressEnterOnPinHandler);
+
+// функция валидация:
+
+var guestsValdationHandler = function () {
+  for (var i = 0; i < guestsOptions.length; i++) {
+    guestsOptions[i].removeAttribute('disabled');
+  }
+
+  // в итоге не смог придумать как это сделать красивым. выбрал такой путь вместо setCustomValidity, так как в текущий момент setCustomValidity выглядит методом хоть и кидающим
+  // оповещение, но оставляющим возможность стрелять себе в ногу.
+  if (selectRoom.selectedIndex === 0) {
+    selectGuest.selectedIndex = 2;
+    guestsOptions[0].setAttribute('disabled', 'disabled');
+    guestsOptions[1].setAttribute('disabled', 'disabled');
+    guestsOptions[3].setAttribute('disabled', 'disabled');
+  } else if (selectRoom.selectedIndex === 1) {
+    selectGuest.selectedIndex = 2;
+    guestsOptions[0].setAttribute('disabled', 'disabled');
+    guestsOptions[3].setAttribute('disabled', 'disabled');
+  } else if (selectRoom.selectedIndex === 2) {
+    selectGuest.selectedIndex = 2;
+    guestsOptions[3].setAttribute('disabled', 'disabled');
+  } else {
+    selectGuest.selectedIndex = 3;
+    for (i = 0; i < selectGuest.selectedIndex; i++) {
+      guestsOptions[i].setAttribute('disabled', 'disabled');
+    }
+  }
+};
+
+selectRoom.addEventListener('input', guestsValdationHandler);
