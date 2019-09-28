@@ -1,59 +1,70 @@
 'use strict';
-
+// константы
 var ENTER_KEYCODE = 13;
 var Y_MIN = 130;
 var Y_MAX = 630;
 var PIN_HEIGHT = 70;
 var PIN_WIDTH = 50;
-var MAIN_BUTTON_SIDE = 65;
 var MAIN_PIN_HEIGHT = 22;
 // пытался получить координаты, вместо константы, но getboundingclientrect() возвращает координаты только относительно окна браузера, а не абсолютную позицию. метод описанный в учебнике
 // тоже не сработал (box.top + pageYOffset и box.left + pageXOffset)
 var X_MAIN_PIN_POSITION = 570;
 var Y_MAIN_PIN_POSITION = 375;
-var maxX = document.querySelector('.map__overlay').clientWidth;
+// Перечисления
 var AccommodationType = {
-  flat: 'Квартира',
-  bungalo: 'Бунгало',
-  house: 'Дом',
-  palace: 'Дворец'
+  FLAT: 'Квартира',
+  BUNGALO: 'Бунгало',
+  HOUSE: 'Дом',
+  PALACE: 'Дворец'
 };
-var advertForm = document.querySelector('.ad-form');
-var filters = document.querySelectorAll('.map__filter');
-var advertElements = advertForm.getElementsByTagName('fieldset');
-var mainPin = document.querySelector('.map__pin--main');
-var addressInput = document.querySelector('#address');
-var guestsOptions = advertForm.querySelector('#capacity').getElementsByTagName('option');
-var selectRoom = advertForm.querySelector('#room_number');
-var selectGuest = advertForm.querySelector('#capacity');
+// DOM-элементы
+var advertFormElement = document.querySelector('.ad-form');
+var filtersElement = document.querySelectorAll('.map__filter');
+var advertElements = advertFormElement.getElementsByTagName('fieldset');
+var mainPinElement = document.querySelector('.map__pin--main');
+var addressInputElement = document.querySelector('#address');
+var guestsOptionsElement = advertFormElement.querySelector('#capacity').getElementsByTagName('option');
+var selectRoomElement = advertFormElement.querySelector('#room_number');
+var selectGuestElement = advertFormElement.querySelector('#capacity');
+var mapFiltersElement = document.querySelector('.map__filters');
+// свойства DOM-элементов
+var maxX = document.querySelector('.map__overlay').clientWidth;
 
 // получаем координаты главного пина
 var getMainPinCoordinates = function (pageState) {
   var address;
 
-  if (pageState === 'active') {
-    address = (X_MAIN_PIN_POSITION + Math.floor(MAIN_BUTTON_SIDE / 2)) + ', ' + (Y_MAIN_PIN_POSITION + MAIN_PIN_HEIGHT + Math.floor(MAIN_BUTTON_SIDE / 2));
+  if (pageState) {
+    address = (X_MAIN_PIN_POSITION + Math.floor(mainPinElement.offsetWidth / 2)) + ', ' + (Y_MAIN_PIN_POSITION + MAIN_PIN_HEIGHT + Math.floor(mainPinElement.offsetHeight / 2));
   } else {
-    address = (X_MAIN_PIN_POSITION + Math.floor(MAIN_BUTTON_SIDE / 2)) + ', ' + (Y_MAIN_PIN_POSITION + Math.floor(MAIN_BUTTON_SIDE / 2));
+    address = (X_MAIN_PIN_POSITION + Math.floor(mainPinElement.offsetWidth / 2)) + ', ' + (Y_MAIN_PIN_POSITION + Math.floor(mainPinElement.offsetHeight / 2));
   }
   return address;
 };
 
+var setAddress = function (pageState) {
+  addressInputElement.value = getMainPinCoordinates(pageState);
+};
+
 // делаем неактивную страницу
+var disableElement = function (element) {
+  element.setAttribute('disabled', 'disabled');
+};
+
+var enableElement = function (element) {
+  element.removeAttribute('disabled');
+};
+
 var deactivatePage = function () {
-  document.querySelector('.map__filters').setAttribute('disabled', 'disabled');
-
-  for (var i = 0; i < advertElements.length; i++) {
-    advertElements[i].setAttribute('disabled', 'disabled');
-  }
-
-  for (i = 0; i < filters.length; i++) {
-    filters[i].setAttribute('disabled', 'disabled');
-  }
-  addressInput.setAttribute('placeholder', getMainPinCoordinates());
+  setAddress();
+  [].forEach.call(advertElements, disableElement);
+  [].forEach.call(filtersElement, disableElement);
+  disableElement(mapFiltersElement);
 };
 
 deactivatePage();
+
+// чтототфывфывфывфывфывфы
 
 var setElementTextContent = function (parentElement, selector, value) {
   parentElement.querySelector(selector).textContent = value;
@@ -151,8 +162,8 @@ var createCardInfo = function (advert) {
   var pricePerNight = advert.offer.price + '₽/ночь.';
   var cardTemplate = document.querySelector('#card').content.querySelector('article');
   var cardElement = cardTemplate.cloneNode(true);
-  var featuresList = cardElement.querySelector('.popup__features');
-  var photosGallery = cardElement.querySelector('.popup__photos');
+  var featuresListElement = cardElement.querySelector('.popup__features');
+  var photosGalleryElement = cardElement.querySelector('.popup__photos');
 
   var listItemTemplate = document.createElement('li');
   listItemTemplate.classList.add('popup__feature');
@@ -169,53 +180,48 @@ var createCardInfo = function (advert) {
   setElementTextContent(cardElement, '.popup__text--capacity', capacity);
   setElementTextContent(cardElement, '.popup__text--address', advert.offer.address);
   setElementTextContent(cardElement, '.popup__text--price', pricePerNight);
-  setElementTextContent(cardElement, '.popup__type', AccommodationType[advert.offer.type]);
-  featuresList.innerHTML = '';
-  photosGallery.innerHTML = '';
+  setElementTextContent(cardElement, '.popup__type', AccommodationType[advert.offer.type.toUpperCase()]);
+  featuresListElement.innerHTML = '';
+  photosGalleryElement.innerHTML = '';
 
   for (var i = 0; i < advert.offer.features.length; i++) {
     var listItem = listItemTemplate.cloneNode(true);
     listItem.classList.add('popup__feature--' + advert.offer.features[i]);
-    featuresList.appendChild(listItem);
+    featuresListElement.appendChild(listItem);
   }
 
   for (i = 0; i < advert.offer.photos.length; i++) {
     var photoItem = photoItemTemplate.cloneNode(true);
     photoItem.setAttribute('src', advert.offer.photos[i]);
-    photosGallery.appendChild(photoItem);
+    photosGalleryElement.appendChild(photoItem);
   }
 
   return cardElement;
 };
 
 // используем фрагмент
-var similarListElement = document.querySelector('.map__pins');
-var parentForCards = document.querySelector('.map');
+var mapPinsElement = document.querySelector('.map__pins');
+var mapElement = document.querySelector('.map');
 var fragmentPins = document.createDocumentFragment();
 var fragmentCards = document.createDocumentFragment();
 
 // делаем активную страницу
 var activatePageHandler = function () {
-  document.querySelector('.map__filters').removeAttribute('disabled');
+  enableElement(mapFiltersElement);
   document.querySelector('.map').classList.remove('map--faded');
-  advertForm.classList.remove('ad-form--disabled');
+  advertFormElement.classList.remove('ad-form--disabled');
 
-  for (var i = 0; i < advertElements.length; i++) {
-    advertElements[i].removeAttribute('disabled');
-  }
+  [].forEach.call(advertElements, enableElement);
+  [].forEach.call(filtersElement, enableElement);
 
-  for (i = 0; i < filters.length; i++) {
-    filters[i].removeAttribute('disabled');
-  }
+  adverts.forEach(function (el) {
+    fragmentPins.appendChild(addPinToMap(el));
+  });
 
-  for (i = 0; i < adverts.length; i++) {
-    fragmentPins.appendChild(addPinToMap(adverts[i]));
-  }
-
-  similarListElement.appendChild(fragmentPins);
+  mapPinsElement.appendChild(fragmentPins);
   fragmentCards.appendChild(createCardInfo(adverts[0]));
-  parentForCards.insertBefore(fragmentCards, parentForCards.querySelector('.map__filters-container'));
-  addressInput.setAttribute('placeholder', getMainPinCoordinates('active'));
+  mapElement.insertBefore(fragmentCards, mapElement.querySelector('.map__filters-container'));
+  setAddress(true);
 };
 
 var pressEnterOnPinHandler = function (evt) {
@@ -226,37 +232,35 @@ var pressEnterOnPinHandler = function (evt) {
   guestsValdationHandler();
 };
 
-mainPin.addEventListener('mousedown', activatePageHandler);
+mainPinElement.addEventListener('mousedown', activatePageHandler);
 
-mainPin.addEventListener('keydown', pressEnterOnPinHandler);
+mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
 
 // функция валидация:
 
 var guestsValdationHandler = function () {
-  for (var i = 0; i < guestsOptions.length; i++) {
-    guestsOptions[i].removeAttribute('disabled');
+  for (var i = 0; i < guestsOptionsElement.length; i++) {
+    guestsOptionsElement[i].removeAttribute('disabled');
   }
 
-  // в итоге не смог придумать как это сделать красивым. выбрал такой путь вместо setCustomValidity, так как в текущий момент setCustomValidity выглядит методом хоть и кидающим
-  // оповещение, но оставляющим возможность стрелять себе в ногу.
-  if (selectRoom.selectedIndex === 0) {
-    selectGuest.selectedIndex = 2;
-    guestsOptions[0].setAttribute('disabled', 'disabled');
-    guestsOptions[1].setAttribute('disabled', 'disabled');
-    guestsOptions[3].setAttribute('disabled', 'disabled');
-  } else if (selectRoom.selectedIndex === 1) {
-    selectGuest.selectedIndex = 2;
-    guestsOptions[0].setAttribute('disabled', 'disabled');
-    guestsOptions[3].setAttribute('disabled', 'disabled');
-  } else if (selectRoom.selectedIndex === 2) {
-    selectGuest.selectedIndex = 2;
-    guestsOptions[3].setAttribute('disabled', 'disabled');
+  if (selectRoomElement.selectedIndex === 0) {
+    selectGuestElement.selectedIndex = 2;
+    guestsOptionsElement[0].setAttribute('disabled', 'disabled');
+    guestsOptionsElement[1].setAttribute('disabled', 'disabled');
+    guestsOptionsElement[3].setAttribute('disabled', 'disabled');
+  } else if (selectRoomElement.selectedIndex === 1) {
+    selectGuestElement.selectedIndex = 2;
+    guestsOptionsElement[0].setAttribute('disabled', 'disabled');
+    guestsOptionsElement[3].setAttribute('disabled', 'disabled');
+  } else if (selectRoomElement.selectedIndex === 2) {
+    selectGuestElement.selectedIndex = 2;
+    guestsOptionsElement[3].setAttribute('disabled', 'disabled');
   } else {
-    selectGuest.selectedIndex = 3;
-    for (i = 0; i < selectGuest.selectedIndex; i++) {
-      guestsOptions[i].setAttribute('disabled', 'disabled');
+    selectGuestElement.selectedIndex = 3;
+    for (i = 0; i < selectGuestElement.selectedIndex; i++) {
+      guestsOptionsElement[i].setAttribute('disabled', 'disabled');
     }
   }
 };
 
-selectRoom.addEventListener('input', guestsValdationHandler);
+selectRoomElement.addEventListener('input', guestsValdationHandler);
