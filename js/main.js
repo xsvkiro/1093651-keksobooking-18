@@ -90,13 +90,16 @@ var removeClass = function (element, className) {
   element.classList.remove(className);
 };
 
-var addPinAndCardElements = function () {
+var addPinElements = function () {
   [].forEach.call(adverts, function (el) {
     fragmentPins.appendChild(addPinToMap(el));
   });
   mapPinsElement.appendChild(fragmentPins);
-  fragmentCards.appendChild(createCardInfo(adverts[0]));
   mapElement.insertBefore(fragmentCards, mapElement.querySelector('.map__filters-container'));
+};
+
+var addCardElement = function () {
+  fragmentCards.appendChild(createCardInfo(adverts[0]));
 };
 
 // перемешивание массива
@@ -231,15 +234,13 @@ var activatePageHandler = function () {
   enableElementInArray(filtersElement);
   removeClass(mapElement, 'map--faded');
   removeClass(advertFormElement, 'ad-form--disabled');
-  addPinAndCardElements();
+  addPinElements();
 };
 
 var pressEnterOnPinHandler = function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
     activatePageHandler();
   }
-  // здесь добавлен вызов для того, чтобы не было не соответствия вызванного дефолтными значениями выбранными (1 комната выбрана, 3 гостя выбрано).
-  guestsValdationHandler();
 };
 
 mainPinElement.addEventListener('mousedown', activatePageHandler);
