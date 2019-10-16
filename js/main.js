@@ -6,6 +6,7 @@ var Y_MAX = 630;
 var PIN_HEIGHT = 70;
 var PIN_WIDTH = 50;
 var MAIN_PIN_HEIGHT = 22;
+var MAX_ROOM = '100';
 // пытался получить координаты, вместо константы, но getboundingclientrect() возвращает координаты только относительно окна браузера, а не абсолютную позицию. метод описанный в учебнике
 // тоже не сработал (box.top + pageYOffset и box.left + pageXOffset)
 var X_MAIN_PIN_POSITION = 570;
@@ -23,12 +24,13 @@ var filtersElement = document.querySelectorAll('.map__filter');
 var advertElements = advertFormElement.getElementsByTagName('fieldset');
 var mainPinElement = document.querySelector('.map__pin--main');
 var addressInputElement = document.querySelector('#address');
-var guestsOptionsElement = advertFormElement.querySelector('#capacity').getElementsByTagName('option');
 var selectRoomElement = advertFormElement.querySelector('#room_number');
 var selectGuestElement = advertFormElement.querySelector('#capacity');
 var mapFiltersElement = document.querySelector('.map__filters');
 // свойства DOM-элементов
 var maxX = document.querySelector('.map__overlay').clientWidth;
+var notForGuests = selectGuestElement.length - 1;
+var defaultGuests = selectGuestElement.length - 2;
 
 // получаем координаты главного пина
 var getMainPinCoordinates = function (pageState) {
@@ -64,8 +66,6 @@ var deactivatePage = function () {
 
 deactivatePage();
 
-// чтототфывфывфывфывфывфы
-
 var setElementTextContent = function (parentElement, selector, value) {
   parentElement.querySelector(selector).textContent = value;
 };
@@ -81,6 +81,23 @@ var getRandomItemOfArray = function (arr) {
 function getMaxItemOfArray(arr) {
   return Math.max.apply(null, arr);
 }
+
+var enableElementInArray = function (array) {
+  [].forEach.call(array, enableElement);
+};
+
+var removeClass = function (element, className) {
+  element.classList.remove(className);
+};
+
+var addPinAndCardElements = function () {
+  [].forEach.call(adverts, function (el) {
+    fragmentPins.appendChild(addPinToMap(el));
+  });
+  mapPinsElement.appendChild(fragmentPins);
+  fragmentCards.appendChild(createCardInfo(adverts[0]));
+  mapElement.insertBefore(fragmentCards, mapElement.querySelector('.map__filters-container'));
+};
 
 // перемешивание массива
 var shuffleArray = function (array) {
@@ -206,22 +223,15 @@ var fragmentPins = document.createDocumentFragment();
 var fragmentCards = document.createDocumentFragment();
 
 // делаем активную страницу
+
 var activatePageHandler = function () {
-  enableElement(mapFiltersElement);
-  document.querySelector('.map').classList.remove('map--faded');
-  advertFormElement.classList.remove('ad-form--disabled');
-
-  [].forEach.call(advertElements, enableElement);
-  [].forEach.call(filtersElement, enableElement);
-
-  adverts.forEach(function (el) {
-    fragmentPins.appendChild(addPinToMap(el));
-  });
-
-  mapPinsElement.appendChild(fragmentPins);
-  fragmentCards.appendChild(createCardInfo(adverts[0]));
-  mapElement.insertBefore(fragmentCards, mapElement.querySelector('.map__filters-container'));
   setAddress(true);
+  enableElement(mapFiltersElement);
+  enableElementInArray(advertElements);
+  enableElementInArray(filtersElement);
+  removeClass(mapElement, 'map--faded');
+  removeClass(advertFormElement, 'ad-form--disabled');
+  addPinAndCardElements();
 };
 
 var pressEnterOnPinHandler = function (evt) {
@@ -239,27 +249,21 @@ mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
 // функция валидация:
 
 var guestsValdationHandler = function () {
-  for (var i = 0; i < guestsOptionsElement.length; i++) {
-    guestsOptionsElement[i].removeAttribute('disabled');
-  }
+  [].forEach.call(selectGuestElement, function (el) {
+    el.removeAttribute('disabled');
+  });
 
-  if (selectRoomElement.selectedIndex === 0) {
-    selectGuestElement.selectedIndex = 2;
-    guestsOptionsElement[0].setAttribute('disabled', 'disabled');
-    guestsOptionsElement[1].setAttribute('disabled', 'disabled');
-    guestsOptionsElement[3].setAttribute('disabled', 'disabled');
-  } else if (selectRoomElement.selectedIndex === 1) {
-    selectGuestElement.selectedIndex = 2;
-    guestsOptionsElement[0].setAttribute('disabled', 'disabled');
-    guestsOptionsElement[3].setAttribute('disabled', 'disabled');
-  } else if (selectRoomElement.selectedIndex === 2) {
-    selectGuestElement.selectedIndex = 2;
-    guestsOptionsElement[3].setAttribute('disabled', 'disabled');
+  if (selectRoomElement.value === MAX_ROOM) {
+    selectGuestElement.selectedIndex = notForGuests;
+    [].forEach.call(selectGuestElement, disableElement);
   } else {
-    selectGuestElement.selectedIndex = 3;
-    for (i = 0; i < selectGuestElement.selectedIndex; i++) {
-      guestsOptionsElement[i].setAttribute('disabled', 'disabled');
-    }
+    disableElement(selectGuestElement[notForGuests]);
+    selectGuestElement.selectedIndex = defaultGuests;
+    [].forEach.call(selectGuestElement, function (el) {
+      if (el.value > selectRoomElement.value) {
+        disableElement(el);
+      }
+    });
   }
 };
 
