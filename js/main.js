@@ -1,5 +1,6 @@
 'use strict';
 // константы
+var ESC_KEYCODE = 27;
 var ENTER_KEYCODE = 13;
 var Y_MIN = 130;
 var Y_MAX = 630;
@@ -18,6 +19,12 @@ var AccommodationType = {
   HOUSE: 'Дом',
   PALACE: 'Дворец'
 };
+var AccommodationPrice = {
+  FLAT: '1000',
+  BUNGALO: '0',
+  HOUSE: '5000',
+  PALACE: '10000'
+};
 // DOM-элементы
 var advertFormElement = document.querySelector('.ad-form');
 var filtersElement = document.querySelectorAll('.map__filter');
@@ -27,6 +34,10 @@ var addressInputElement = document.querySelector('#address');
 var selectRoomElement = advertFormElement.querySelector('#room_number');
 var selectGuestElement = advertFormElement.querySelector('#capacity');
 var mapFiltersElement = document.querySelector('.map__filters');
+var priceElement = advertFormElement.querySelector('#price');
+var accTypeElement = advertFormElement.querySelector('#type');
+var timeinElement = advertFormElement.querySelector('#timein');
+var timeoutElement = advertFormElement.querySelector('#timeout');
 // свойства DOM-элементов
 var maxX = document.querySelector('.map__overlay').clientWidth;
 var notForGuests = selectGuestElement.length - 1;
@@ -95,10 +106,10 @@ var addPinElements = function () {
     fragmentPins.appendChild(addPinToMap(el));
   });
   mapPinsElement.appendChild(fragmentPins);
-  mapElement.insertBefore(fragmentCards, mapElement.querySelector('.map__filters-container'));
 };
 
 var addCardElement = function () {
+  mapElement.insertBefore(fragmentCards, mapElement.querySelector('.map__filters-container'));
   fragmentCards.appendChild(createCardInfo(adverts[0]));
 };
 
@@ -235,19 +246,19 @@ var activatePageHandler = function () {
   removeClass(mapElement, 'map--faded');
   removeClass(advertFormElement, 'ad-form--disabled');
   addPinElements();
+  mainPinElement.removeEventListener('mousedown', activatePageHandler);
 };
 
 var pressEnterOnPinHandler = function (evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
     activatePageHandler();
   }
+  mainPinElement.removeEventListener('mousedown', pressEnterOnPinHandler);
 };
 
 mainPinElement.addEventListener('mousedown', activatePageHandler);
 
 mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
-
-// функция валидация:
 
 var guestsValdationHandler = function () {
   [].forEach.call(selectGuestElement, function (el) {
@@ -269,3 +280,33 @@ var guestsValdationHandler = function () {
 };
 
 selectRoomElement.addEventListener('input', guestsValdationHandler);
+
+var accPriceValdationHandler = function () {
+  priceElement.setAttribute('min', AccommodationPrice[accTypeElement.value.toUpperCase()]);
+  priceElement.setAttribute('placeholder', AccommodationPrice[accTypeElement.value.toUpperCase()]);
+};
+
+accTypeElement.addEventListener('input', accPriceValdationHandler);
+
+timeinElement.addEventListener('input', function () {
+  timeoutElement.value = timeinElement.value;
+});
+
+timeoutElement.addEventListener('input', function () {
+  timeinElement.value = timeoutElement.value;
+});
+
+//  хитрые штуки для карточек
+
+mainPinElement.addEventListener('click', addCardElement);
+
+/**setupClose.addEventListener('click', function () {
+  closePopup();
+});
+
+setupClose.addEventListener('keydown', function (evt) {
+  if (evt.keyCode === ENTER_KEYCODE) {
+    closePopup();
+  }
+});
+*/
