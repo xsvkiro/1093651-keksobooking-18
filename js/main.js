@@ -52,7 +52,7 @@ var pinId;
 
 // функции
 // получаем координаты главного пина
-var getMainPinCoordinates = function (pageState) {
+function getMainPinCoordinates(pageState) {
   var address;
 
   if (pageState) {
@@ -61,78 +61,78 @@ var getMainPinCoordinates = function (pageState) {
     address = (X_MAIN_PIN_POSITION + Math.floor(mainPinElement.offsetWidth / 2)) + ', ' + (Y_MAIN_PIN_POSITION + Math.floor(mainPinElement.offsetHeight / 2));
   }
   return address;
-};
+}
 
-var showElement = function (element) {
+function showElement(element) {
   element.classList.remove('hidden');
-};
+}
 
-var hideElement = function (element) {
+function hideElement(element) {
   element.classList.add('hidden');
-};
+}
 
-var setAddress = function (pageState) {
+function setAddress(pageState) {
   addressInputElement.value = getMainPinCoordinates(pageState);
-};
+}
 
 // делаем неактивную страницу
-var disableElement = function (element) {
+function disableElement(element) {
   element.setAttribute('disabled', 'disabled');
-};
+}
 
-var enableElement = function (element) {
+function enableElement(element) {
   element.removeAttribute('disabled');
-};
+}
 
-var deactivatePage = function () {
+function deactivatePage() {
   setAddress();
   [].forEach.call(advertElements, disableElement);
   [].forEach.call(filtersElement, disableElement);
   disableElement(mapFiltersElement);
-};
+}
 
 deactivatePage();
 
-var setElementTextContent = function (parentElement, selector, value) {
+function setElementTextContent(parentElement, selector, value) {
   parentElement.querySelector(selector).textContent = value;
-};
+}
 
-var getRandomNumber = function (min, max) {
+function getRandomNumber(min, max) {
   return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + min;
-};
+}
 
-var getRandomItemOfArray = function (arr) {
+function getRandomItemOfArray(arr) {
   return arr[getRandomNumber(0, arr.length - 1)];
-};
+}
 
-var getMaxItemOfArray = function (arr) {
+function getMaxItemOfArray(arr) {
   return Math.max.apply(null, arr);
-};
+}
 
-var enableElementInArray = function (array) {
+function enableElementInArray(array) {
   [].forEach.call(array, enableElement);
-};
+}
 
-var removeClass = function (element, className) {
+function removeClass(element, className) {
   element.classList.remove(className);
-};
+}
 
-var addPinElements = function () {
+function addPinElements() {
   [].forEach.call(adverts, function (el) {
     fragmentPins.appendChild(addPinToMap(el));
   });
   mapPinsElement.appendChild(fragmentPins);
-};
+}
 
-var addCards = function () {
+function addCards() {
   [].forEach.call(adverts, function (el) {
     fragmentCards.appendChild(createCardInfo(el));
   });
   mapElement.insertBefore(fragmentCards, mapElement.querySelector('.map__filters-container'));
-};
+}
 
 // перемешивание массива
-var shuffleArray = function (array) {
+function shuffleArray(array) {
   var j;
   var temp;
 
@@ -144,15 +144,15 @@ var shuffleArray = function (array) {
   }
 
   return array;
-};
+}
 
-var getRandomSliceForArray = function (array) {
+function getRandomSliceForArray(array) {
   var lastITem = getRandomNumber(1, array.length);
   return array.slice(0, lastITem);
-};
+}
 
 // создаем массив объектов
-var generateAdverts = function (number) {
+function generateAdverts(number) {
   var controlHours = ['12:00', '13:00', '14:00'];
   var prices = [1, 75000];
   var titles = ['заголовок1', 'заголовок 2', 'заголовок 3'];
@@ -190,11 +190,11 @@ var generateAdverts = function (number) {
   }
 
   return adverts;
-};
+}
 
 var adverts = generateAdverts(8);
 
-var addPinToMap = function (advert) {
+function addPinToMap(advert) {
   var pinTemplate = document.querySelector('#pin').content.querySelector('.map__pin');
   var pinElement = pinTemplate.cloneNode(true);
 
@@ -205,14 +205,14 @@ var addPinToMap = function (advert) {
   pinElement.querySelector('img').alt = advert.offer.title;
   pinElement.querySelector('img').src = advert.author.avatar;
   return pinElement;
-};
+}
 
 // eslint-disable-next-line no-unused-vars
 function replyСlick(obj) {
   pinId = obj.id;
 }
 
-var createCardInfo = function (advert) {
+function createCardInfo(advert) {
   var checkinTime = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
   var capacity = advert.offer.rooms + ' комнаты для ' + advert.offer.guests + ' гостей.';
   var pricePerNight = advert.offer.price + '₽/ночь.';
@@ -255,9 +255,9 @@ var createCardInfo = function (advert) {
   }
 
   return cardElement;
-};
+}
 
-var activatePageHandler = function () {
+function activatePageHandler() {
   setAddress(true);
   enableElement(mapFiltersElement);
   enableElementInArray(advertElements);
@@ -268,15 +268,15 @@ var activatePageHandler = function () {
   mainPinElement.removeEventListener('mousedown', activatePageHandler);
   mainPinElement.removeEventListener('keydown', pressEnterOnPinHandler);
   addCards();
-};
+}
 
-var pressEnterOnPinHandler = function (evt) {
+function pressEnterOnPinHandler(evt) {
   if (evt.keyCode === ENTER_KEYCODE) {
     activatePageHandler();
   }
-};
+}
 
-var guestsValdationHandler = function () {
+function guestsValdationHandler() {
   [].forEach.call(selectGuestElement, function (el) {
     el.removeAttribute('disabled');
   });
@@ -293,32 +293,32 @@ var guestsValdationHandler = function () {
       }
     });
   }
-};
+}
 
-var accPriceValdationHandler = function () {
+function accPriceValdationHandler() {
   priceElement.setAttribute('min', AccommodationPrice[accTypeElement.value.toUpperCase()]);
   priceElement.setAttribute('placeholder', AccommodationPrice[accTypeElement.value.toUpperCase()]);
-};
+}
 
-var hideCards = function () {
+function hideCards() {
   var allCards = document.querySelectorAll('.map__card ');
   [].forEach.call(allCards, hideElement);
-};
+}
 
-var openPopUpHandler = function () {
+function openPopUpHandler() {
   hideCards();
   var popUpElement = document.getElementById('card' + pinId);
   showElement(popUpElement);
   var cardClosure = popUpElement.querySelector('.popup__close');
   cardClosure.addEventListener('click', hideCards);
   pinId = null;
-};
+}
 
-var onPopupEscPress = function (evt) {
+function onPopupEscPress(evt) {
   if (evt.keyCode === ESC_KEYCODE) {
     hideCards();
   }
-};
+}
 
 // listeners.
 mainPinElement.addEventListener('mousedown', activatePageHandler);
