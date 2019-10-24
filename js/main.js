@@ -1,19 +1,20 @@
 'use strict';
 (function () {
   // DOM-элементы
+  var advertFormElement = document.querySelector('.ad-form');
   var filtersElement = document.querySelectorAll('.map__filter');
-  var advertElements = window.advertFormElement.getElementsByTagName('fieldset');
+  var advertElements = advertFormElement.getElementsByTagName('fieldset');
   var addressInputElement = document.querySelector('#address');
   var mapFiltersElement = document.querySelector('.map__filters');
   window.mapElement = document.querySelector('.map');
 
-  var setAddress = function (pageState) {
+  window.setAddress = function (pageState) {
     addressInputElement.value = window.pins.getMainPinCoordinates(pageState);
   };
 
   // делаем неактивную страницу
   var deactivatePage = function () {
-    setAddress();
+    window.setAddress();
     [].forEach.call(advertElements, window.utils.disableElement);
     [].forEach.call(filtersElement, window.utils.disableElement);
     window.utils.disableElement(mapFiltersElement);
@@ -24,12 +25,12 @@
   // eslint-disable-next-line no-unused-vars
 
   var activatePageHandler = function () {
-    setAddress(true);
+    window.setAddress(true);
     window.utils.enableElement(mapFiltersElement);
     window.utils.enableElementInArray(advertElements);
     window.utils.enableElementInArray(filtersElement);
     window.utils.removeClass(window.mapElement, 'map--faded');
-    window.utils.removeClass(window.advertFormElement, 'ad-form--disabled');
+    window.utils.removeClass(advertFormElement, 'ad-form--disabled');
     window.pins.addPinElements();
     window.pins.mainPinElement.removeEventListener('mousedown', activatePageHandler);
     window.pins.mainPinElement.removeEventListener('keydown', pressEnterOnPinHandler);
