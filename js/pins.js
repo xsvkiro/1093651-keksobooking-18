@@ -20,7 +20,6 @@
       [].forEach.call(window.adverts, function (el) {
         fragmentPins.appendChild(window.pins.addPinToMap(el));
       });
-      // mapPinsElement.insertBefore(fragmentPins, window.pins.mainPinElement);
       mapPinsElement.appendChild(fragmentPins);
     },
     addPinToMap: function (advert) {
@@ -40,8 +39,12 @@
       window.pinId = obj.id;
     }
   };
-  // huinya
+
   window.pins.mainPinElement.addEventListener('mousedown', function (evt) {
+    var Y_MIN = 76;
+    var Y_MAX = 576;
+    var xMax = document.querySelector('.map__overlay').clientWidth - Math.floor(window.pins.mainPinElement.offsetWidth / 2);
+    var xMin = document.querySelector('.map__overlay').clientLeft - Math.floor(window.pins.mainPinElement.offsetWidth / 2);
 
     var startCoords = {
       x: evt.clientX,
@@ -63,29 +66,43 @@
         y: moveEvt.clientY
       };
 
-      window.pins.mainPinElement.style.top = (window.pins.mainPinElement.offsetTop - shift.y) + 'px';
-      window.pins.mainPinElement.style.left = (window.pins.mainPinElement.offsetLeft - shift.x) + 'px';
+      if (window.pins.mainPinElement.offsetTop - shift.y < Y_MIN) {
+        window.pins.mainPinElement.style.top = Y_MIN + 'px';
+      } else if (window.pins.mainPinElement.offsetTop - shift.y > Y_MAX) {
+        window.pins.mainPinElement.style.top = Y_MAX + 'px';
+      } else {
+        window.pins.mainPinElement.style.top = (window.pins.mainPinElement.offsetTop - shift.y) + 'px';
+      }
+
+      if (window.pins.mainPinElement.offsetLeft - shift.x < xMin) {
+        window.pins.mainPinElement.style.left = xMin + 'px';
+      } else if (window.pins.mainPinElement.offsetLeft - shift.x > xMax) {
+        window.pins.mainPinElement.style.left = xMax + 'px';
+      } else {
+        window.pins.mainPinElement.style.left = (window.pins.mainPinElement.offsetLeft - shift.x) + 'px';
+      }
+
       window.setAddress(true);
     };
 
     var onMouseUp = function () {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      // mapPinsElement.removeEventListener('mouseout', onMouseOut);
+      window.pins.mainPinElement.style.zIndex = --window.pins.mainPinElement.style.zIndex;
+    };
+
+    /* var onMouseOut = function () {
       window.pins.mainPinElement.removeEventListener('mousemove', onMouseMove);
       window.pins.mainPinElement.removeEventListener('mouseup', onMouseUp);
       mapPinsElement.removeEventListener('mouseout', onMouseOut);
       window.pins.mainPinElement.style.zIndex = --window.pins.mainPinElement.style.zIndex;
-    };
-
-    var onMouseOut = function () {
-      window.pins.mainPinElement.removeEventListener('mousemove', onMouseMove);
-      window.pins.mainPinElement.removeEventListener('mouseup', onMouseUp);
-      mapPinsElement.removeEventListener('mouseout', onMouseOut);
-      window.pins.mainPinElement.style.zIndex = --window.pins.mainPinElement.style.zIndex;
-    };
+    }; **/
 
 
-    window.pins.mainPinElement.addEventListener('mousemove', onMouseMove);
-    window.pins.mainPinElement.addEventListener('mouseup', onMouseUp);
-    mapPinsElement.addEventListener('mouseout', onMouseOut);
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    // mapPinsElement.addEventListener('mouseout', onMouseOut);
   });
 })();
 
