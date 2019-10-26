@@ -16,8 +16,8 @@
       }
       return address;
     },
-    addPinElements: function () {
-      [].forEach.call(window.adverts, function (el) {
+    addPinElements: function (array) {
+      [].forEach.call(array, function (el) {
         fragmentPins.appendChild(window.pins.addPinToMap(el));
       });
       mapPinsElement.appendChild(fragmentPins);
@@ -88,21 +88,11 @@
     var onMouseUp = function () {
       document.removeEventListener('mousemove', onMouseMove);
       document.removeEventListener('mouseup', onMouseUp);
-      // mapPinsElement.removeEventListener('mouseout', onMouseOut);
       window.pins.mainPinElement.style.zIndex = --window.pins.mainPinElement.style.zIndex;
     };
 
-    /* var onMouseOut = function () {
-      window.pins.mainPinElement.removeEventListener('mousemove', onMouseMove);
-      window.pins.mainPinElement.removeEventListener('mouseup', onMouseUp);
-      mapPinsElement.removeEventListener('mouseout', onMouseOut);
-      window.pins.mainPinElement.style.zIndex = --window.pins.mainPinElement.style.zIndex;
-    }; **/
-
-
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-    // mapPinsElement.addEventListener('mouseout', onMouseOut);
   });
 })();
 

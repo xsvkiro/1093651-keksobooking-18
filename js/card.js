@@ -11,8 +11,8 @@
   var fragmentCards = document.createDocumentFragment();
   var mapPins = document.querySelector('.map__pins');
   window.cards = {
-    addCards: function () {
-      [].forEach.call(window.adverts, function (el) {
+    addCards: function (array) {
+      [].forEach.call(array, function (el) {
         fragmentCards.appendChild(window.cards.createCardInfo(el));
       });
       window.mapElement.insertBefore(fragmentCards, window.mapElement.querySelector('.map__filters-container'));

@@ -43,5 +43,5 @@
 
     return adverts;
   };
-  window.adverts = generateAdverts(8);
+  window.fakeAdverts = generateAdverts(8);
 })();
