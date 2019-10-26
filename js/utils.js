@@ -48,6 +48,9 @@
     },
     enableElement: function (element) {
       element.removeAttribute('disabled');
+    },
+    removeElement: function (parentElement, element) {
+      parentElement.removeChild(element);
     }
   };
 })();

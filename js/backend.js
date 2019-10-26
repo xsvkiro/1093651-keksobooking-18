@@ -19,7 +19,7 @@
     xhr.addEventListener('timeout', function () {
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
-    xhr.timeout = 10000;
+    xhr.timeout = 1;
 
     return xhr;
   };
@@ -42,7 +42,7 @@
       var errorElement = errorTemplate.cloneNode(true);
       errorElement.querySelector('p').textContent = message;
       document.querySelector('main').appendChild(errorElement);
-      document.querySelector('main').addEventListener('mousedown', function () {
+      errorElement.addEventListener('click', function () {
         document.querySelector('main').removeChild(errorElement);
       });
     }
