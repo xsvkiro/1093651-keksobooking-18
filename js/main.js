@@ -22,8 +22,6 @@
 
   deactivatePage();
 
-  // eslint-disable-next-line no-unused-vars
-
   var activatePageHandler = function () {
     window.setAddress(true);
     window.utils.enableElement(mapFiltersElement);
@@ -31,10 +29,13 @@
     window.utils.enableElementInArray(filtersElement);
     window.utils.removeClass(window.mapElement, 'map--faded');
     window.utils.removeClass(advertFormElement, 'ad-form--disabled');
-    window.pins.addPinElements();
+    window.backend.load(function (adverts) {
+      window.adverts = adverts;
+      window.pins.addPinElements(adverts);
+      window.cards.addCards(adverts);
+    }, window.backend.onRequestError);
     window.pins.mainPinElement.removeEventListener('mousedown', activatePageHandler);
     window.pins.mainPinElement.removeEventListener('keydown', pressEnterOnPinHandler);
-    window.cards.addCards();
   };
 
   var pressEnterOnPinHandler = function (evt) {
