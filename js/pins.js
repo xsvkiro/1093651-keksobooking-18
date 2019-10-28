@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-  var mapPinsElement = document.querySelector('.map__pins');
+  window.mapPinsElement = document.querySelector('.map__pins');
   var fragmentPins = document.createDocumentFragment();
   window.pins = {
     mainPinElement: document.querySelector('.map__pin--main'),
@@ -20,7 +20,7 @@
       [].forEach.call(array, function (el) {
         fragmentPins.appendChild(window.pins.addPinToMap(el));
       });
-      mapPinsElement.appendChild(fragmentPins);
+      window.mapPinsElement.appendChild(fragmentPins);
     },
     addPinToMap: function (advert) {
       var PIN_HEIGHT = 70;
@@ -33,6 +33,7 @@
       pinElement.setAttribute('tabindex', '0');
       pinElement.querySelector('img').alt = advert.offer.title;
       pinElement.querySelector('img').src = advert.author.avatar;
+      pinElement.classList.add('added_pin');
       return pinElement;
     },
     replyСlick: function (obj) {

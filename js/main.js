@@ -1,41 +1,16 @@
 'use strict';
 (function () {
   // DOM-элементы
+  var MAIN_PIN_DEFAULT_X = window.pins.mainPinElement.style.left;
+  var MAIN_PIN_DEFAULT_Y = window.pins.mainPinElement.style.top;
   var advertFormElement = document.querySelector('.ad-form');
-  var filtersElement = document.querySelectorAll('.map__filter');
+  var filtersElements = document.querySelectorAll('.map__filter');
   var advertElements = advertFormElement.getElementsByTagName('fieldset');
   var addressInputElement = document.querySelector('#address');
   var mapFiltersElement = document.querySelector('.map__filters');
   window.mapElement = document.querySelector('.map');
-
   window.setAddress = function (pageState) {
     addressInputElement.value = window.pins.getMainPinCoordinates(pageState);
-  };
-
-  // делаем неактивную страницу
-  var deactivatePage = function () {
-    window.setAddress();
-    [].forEach.call(advertElements, window.utils.disableElement);
-    [].forEach.call(filtersElement, window.utils.disableElement);
-    window.utils.disableElement(mapFiltersElement);
-  };
-
-  deactivatePage();
-
-  var activatePageHandler = function () {
-    window.setAddress(true);
-    window.utils.enableElement(mapFiltersElement);
-    window.utils.enableElementInArray(advertElements);
-    window.utils.enableElementInArray(filtersElement);
-    window.utils.removeClass(window.mapElement, 'map--faded');
-    window.utils.removeClass(advertFormElement, 'ad-form--disabled');
-    window.backend.load(function (adverts) {
-      window.adverts = adverts;
-      window.pins.addPinElements(adverts);
-      window.cards.addCards(adverts);
-    }, window.backend.onRequestError);
-    window.pins.mainPinElement.removeEventListener('mousedown', activatePageHandler);
-    window.pins.mainPinElement.removeEventListener('keydown', pressEnterOnPinHandler);
   };
 
   var pressEnterOnPinHandler = function (evt) {
@@ -44,8 +19,56 @@
     }
   };
 
-  // listeners.
-  window.pins.mainPinElement.addEventListener('mousedown', activatePageHandler);
+  window.deactivatePage = function () {
+    window.advertFormElement.reset();
+    window.pins.mainPinElement.style.left = MAIN_PIN_DEFAULT_X;
+    window.pins.mainPinElement.style.top = MAIN_PIN_DEFAULT_Y;
+    window.setAddress();
+    [].forEach.call(advertElements, window.utils.disableElement);
+    [].forEach.call(filtersElements, window.utils.disableElement);
+    window.utils.disableElement(mapFiltersElement);
+    var pins = document.querySelectorAll('.added_pin');
+    for (var i = 0; i < pins.length; i++) {
+      window.mapPinsElement.removeChild(pins[i]);
+    }
+    var cards = document.querySelectorAll('.map__card');
+    for (i = 0; i < cards.length; i++) {
+      window.mapElement.removeChild(cards[i]);
+    }
+    window.pins.mainPinElement.addEventListener('mousedown', activatePageHandler);
+    window.pins.mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
+  };
 
-  window.pins.mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
+  window.desablePage = function () {
+    window.advertFormElement.reset();
+    window.pins.mainPinElement.style.left = MAIN_PIN_DEFAULT_X;
+    window.pins.mainPinElement.style.top = MAIN_PIN_DEFAULT_Y;
+    window.setAddress();
+    [].forEach.call(advertElements, window.utils.disableElement);
+    [].forEach.call(filtersElements, window.utils.disableElement);
+    window.utils.disableElement(mapFiltersElement);
+    window.pins.mainPinElement.addEventListener('mousedown', activatePageHandler);
+    window.pins.mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
+  };
+
+  var activatePageHandler = function () {
+    window.setAddress(true);
+    window.utils.enableElement(mapFiltersElement);
+    [].forEach.call(advertElements, window.utils.enableElement);
+    [].forEach.call(filtersElements, window.utils.enableElement);
+    window.utils.removeClass(window.mapElement, 'map--faded');
+    window.utils.removeClass(advertFormElement, 'ad-form--disabled');
+    window.backend.load(function (adverts) {
+      window.adverts = adverts;
+      window.pins.addPinElements(adverts);
+      window.cards.addCards(adverts);
+    }, window.utils.showErrorMessage);
+    window.form.guestsValdationHandler();
+    window.form.accPriceValdationHandler();
+    window.pins.mainPinElement.removeEventListener('mousedown', activatePageHandler);
+    window.pins.mainPinElement.removeEventListener('keydown', pressEnterOnPinHandler);
+  };
+
+  window.desablePage();
+
 })();
