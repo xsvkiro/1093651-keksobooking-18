@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  var ESC_KEYCODE = 27;
+
   var AccommodationType = {
     FLAT: 'Квартира',
     BUNGALO: 'Бунгало',
@@ -84,7 +84,7 @@
   };
 
   var onPopupEscPress = function (evt) {
-    if (evt.keyCode === ESC_KEYCODE) {
+    if (evt.keyCode === window.utils.ESC_KEYCODE) {
       hideCards();
     }
   };

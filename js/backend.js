@@ -1,6 +1,7 @@
 'use strict';
 
 (function () {
+
   var makeXHR = function (onLoad, onError) {
     var xhr = new XMLHttpRequest();
     xhr.responseType = 'json';
@@ -19,7 +20,7 @@
     xhr.addEventListener('timeout', function () {
       onError('Запрос не успел выполниться за ' + xhr.timeout + 'мс');
     });
-    xhr.timeout = 1;
+    xhr.timeout = 10000;
 
     return xhr;
   };
@@ -36,15 +37,6 @@
       var xhr = makeXHR(onLoad, onError);
       xhr.open('POST', window.backend.URLForSave);
       xhr.send(data);
-    },
-    onRequestError: function (message) {
-      var errorTemplate = document.querySelector('#error').content.querySelector('.error');
-      var errorElement = errorTemplate.cloneNode(true);
-      errorElement.querySelector('p').textContent = message;
-      document.querySelector('main').appendChild(errorElement);
-      errorElement.addEventListener('click', function () {
-        document.querySelector('main').removeChild(errorElement);
-      });
     }
   };
 })();
