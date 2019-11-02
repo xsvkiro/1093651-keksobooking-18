@@ -4,7 +4,11 @@
     ESC_KEYCODE: 27,
     ENTER_KEYCODE: 13,
     setElementTextContent: function (parentElement, selector, value) {
-      parentElement.querySelector(selector).textContent = value;
+      if (value.length === 0) {
+        window.utils.hideElement(parentElement);
+      } else {
+        parentElement.querySelector(selector).textContent = value;
+      }
     },
     getRandomNumber: function (min, max) {
       return Math.floor(Math.random() * (Math.floor(max) - Math.ceil(min) + 1)) + min;

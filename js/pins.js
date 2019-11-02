@@ -1,7 +1,6 @@
 'use strict';
 (function () {
   window.mapPinsElement = document.querySelector('.map__pins');
-  var fragmentPins = document.createDocumentFragment();
   window.pins = {
     mainPinElement: document.querySelector('.map__pin--main'),
     getMainPinCoordinates: function (pageState) {
@@ -17,9 +16,11 @@
       return address;
     },
     addPinElements: function (array) {
-      [].forEach.call(array, function (el) {
-        fragmentPins.appendChild(window.pins.addPinToMap(el));
-      });
+      var takeNumber = array.length > 5 ? 5 : array.length;
+      var fragmentPins = document.createDocumentFragment();
+      for (var i = 0; i < takeNumber; i++) {
+        fragmentPins.appendChild(window.pins.addPinToMap(array[i]));
+      }
       window.mapPinsElement.appendChild(fragmentPins);
     },
     addPinToMap: function (advert) {
@@ -34,6 +35,12 @@
       pinElement.querySelector('img').alt = advert.offer.title;
       pinElement.querySelector('img').src = advert.author.avatar;
       pinElement.classList.add('added_pin');
+      pinElement.addEventListener('click', window.cards.openPopUpHandler);
+      pinElement.addEventListener('keydown', function (evt) {
+        if (evt.keyCode === window.utils.ENTER_KEYCODE) {
+          window.cards.openPopUpHandler();
+        }
+      });
       return pinElement;
     },
     replyСlick: function (obj) {

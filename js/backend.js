@@ -37,6 +37,10 @@
       var xhr = makeXHR(onLoad, onError);
       xhr.open('POST', window.backend.URLForSave);
       xhr.send(data);
+    },
+    onSuccessLoad: function (adverts) {
+      window.adverts = adverts;
+      window.pins.addPinElements(window.adverts);
     }
   };
 })();

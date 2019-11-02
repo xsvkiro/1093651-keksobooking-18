@@ -31,15 +31,12 @@
     for (var i = 0; i < pins.length; i++) {
       window.mapPinsElement.removeChild(pins[i]);
     }
-    var cards = document.querySelectorAll('.map__card');
-    for (i = 0; i < cards.length; i++) {
-      window.mapElement.removeChild(cards[i]);
-    }
+    window.cards.deleteCard();
     window.pins.mainPinElement.addEventListener('mousedown', activatePageHandler);
     window.pins.mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
   };
 
-  window.desablePage = function () {
+  window.disablePage = function () {
     window.advertFormElement.reset();
     window.pins.mainPinElement.style.left = MAIN_PIN_DEFAULT_X;
     window.pins.mainPinElement.style.top = MAIN_PIN_DEFAULT_Y;
@@ -58,17 +55,13 @@
     [].forEach.call(filtersElements, window.utils.enableElement);
     window.utils.removeClass(window.mapElement, 'map--faded');
     window.utils.removeClass(advertFormElement, 'ad-form--disabled');
-    window.backend.load(function (adverts) {
-      window.adverts = adverts;
-      window.pins.addPinElements(adverts);
-      window.cards.addCards(adverts);
-    }, window.utils.showErrorMessage);
+    window.backend.load(window.backend.onSuccessLoad, window.utils.showErrorMessage);
     window.form.guestsValdationHandler();
     window.form.accPriceValdationHandler();
     window.pins.mainPinElement.removeEventListener('mousedown', activatePageHandler);
     window.pins.mainPinElement.removeEventListener('keydown', pressEnterOnPinHandler);
   };
 
-  window.desablePage();
+  window.disablePage();
 
 })();
