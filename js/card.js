@@ -8,14 +8,18 @@
     HOUSE: 'Дом',
     PALACE: 'Дворец'
   };
-  var fragmentCards = document.createDocumentFragment();
+  var fragmentCard = document.createDocumentFragment();
   var mapPins = document.querySelector('.map__pins');
   window.cards = {
     addCards: function (array) {
       [].forEach.call(array, function (el) {
-        fragmentCards.appendChild(window.cards.createCardInfo(el));
+        fragmentCard.appendChild(window.cards.createCardInfo(el));
       });
-      window.mapElement.insertBefore(fragmentCards, window.mapElement.querySelector('.map__filters-container'));
+      window.mapElement.insertBefore(fragmentCard, window.mapElement.querySelector('.map__filters-container'));
+    },
+    addCard: function (card) {
+      fragmentCard.appendChild(window.cards.createCardInfo(card));
+      window.mapElement.insertBefore(fragmentCard, window.mapElement.querySelector('.map__filters-container'));
     },
     createCardInfo: function (advert) {
       var checkinTime = 'Заезд после ' + advert.offer.checkin + ' выезд до ' + advert.offer.checkout;
@@ -43,51 +47,53 @@
       window.utils.setElementTextContent(cardElement, '.popup__text--price', pricePerNight);
       window.utils.setElementTextContent(cardElement, '.popup__type', AccommodationType[advert.offer.type.toUpperCase()]);
       cardElement.setAttribute('id', 'card' + window.adverts.indexOf(advert));
-      window.utils.hideElement(cardElement);
-      featuresListElement.innerHTML = '';
-      photosGalleryElement.innerHTML = '';
 
-      for (var i = 0; i < advert.offer.features.length; i++) {
-        var listItem = listItemTemplate.cloneNode(true);
-        listItem.classList.add('popup__feature--' + advert.offer.features[i]);
-        featuresListElement.appendChild(listItem);
+      if (advert.offer.features.length) {
+        featuresListElement.innerHTML = '';
+        for (var i = 0; i < advert.offer.features.length; i++) {
+          var listItem = listItemTemplate.cloneNode(true);
+          listItem.classList.add('popup__feature--' + advert.offer.features[i]);
+          featuresListElement.appendChild(listItem);
+        }
+      } else {
+        featuresListElement.innerHTML = '';
+        window.utils.hideElement(listItemTemplate);
       }
 
-      for (i = 0; i < advert.offer.photos.length; i++) {
-        var photoItem = photoItemTemplate.cloneNode(true);
-        photoItem.setAttribute('src', advert.offer.photos[i]);
-        photosGalleryElement.appendChild(photoItem);
+      if (advert.offer.photos.length) {
+        for (i = 0; i < advert.offer.photos.length; i++) {
+          photosGalleryElement.innerHTML = '';
+          var photoItem = photoItemTemplate.cloneNode(true);
+          photoItem.setAttribute('src', advert.offer.photos[i]);
+          photosGalleryElement.appendChild(photoItem);
+        }
+      } else {
+        window.utils.hideElement(photosGalleryElement);
+        photosGalleryElement.innerHTML = '';
       }
-
       return cardElement;
     },
     // абыр
     openPopUpHandler: function () {
-      hideCards();
-      var popUpElement = document.getElementById('card' + window.pinId);
-      window.utils.showElement(popUpElement);
-      var cardClosure = popUpElement.querySelector('.popup__close');
-      cardClosure.addEventListener('click', hideCards);
+      window.cards.deleteCard();
+      window.cards.addCard(window.adverts[window.pinId]);
+      var cardClosure = document.querySelector('.popup__close');
+      cardClosure.addEventListener('click', window.cards.deleteCard);
       window.pinId = null;
+    },
+    deleteCard: function () {
+      var cardElement = document.querySelector('.map__card');
+      if (cardElement) {
+        window.utils.removeElement(window.mapElement, cardElement);
+      }
+    },
+    onPopupEscPress: function (evt) {
+      if (evt.keyCode === window.utils.ESC_KEYCODE) {
+        window.cards.deleteCard();
+      }
     }
   };
-  mapPins.addEventListener('click', window.cards.openPopUpHandler);
 
-  mapPins.addEventListener('keydown', function (evt) {
-    if (evt.keyCode === window.utils.ENTER_KEYCODE) {
-      window.cards.openPopUpHandler();
-    }
-  });
-  var hideCards = function () {
-    var allCards = document.querySelectorAll('.map__card ');
-    [].forEach.call(allCards, window.utils.hideElement);
-  };
-
-  var onPopupEscPress = function (evt) {
-    if (evt.keyCode === window.utils.ESC_KEYCODE) {
-      hideCards();
-    }
-  };
-  document.addEventListener('keydown', onPopupEscPress);
+  document.addEventListener('keydown', window.cards.onPopupEscPress);
 })();
 
