@@ -43,6 +43,12 @@
       });
       return pinElement;
     },
+    removePins: function () {
+      var pins = document.querySelectorAll('.added_pin');
+      for (var i = 0; i < pins.length; i++) {
+        window.mapPinsElement.removeChild(pins[i]);
+      }
+    },
     replyСlick: function (obj) {
       window.pinId = obj.id;
     }
