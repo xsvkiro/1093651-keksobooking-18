@@ -39,7 +39,7 @@
       xhr.send(data);
     },
     onSuccessLoad: function (adverts) {
-      window.adverts = adverts;
+      window.adverts = Array.from(adverts);
       window.pins.addPinElements(window.adverts);
     }
   };

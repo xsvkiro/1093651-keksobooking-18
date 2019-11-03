@@ -9,7 +9,6 @@
     PALACE: 'Дворец'
   };
   var fragmentCard = document.createDocumentFragment();
-  var mapPins = document.querySelector('.map__pins');
   window.cards = {
     addCards: function (array) {
       [].forEach.call(array, function (el) {

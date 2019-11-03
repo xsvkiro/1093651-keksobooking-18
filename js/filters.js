@@ -1,53 +1,84 @@
 'use strict';
 
 (function () {
+  var PriceProperties = {
+    LOW_TYPE: 'low',
+    MID_TYPE: 'middle',
+    HIGH_TYPE: 'high',
+    MIN: 10000,
+    MAX: 50000
+  };
+  var filters = document.querySelector('.map__filters');
   var housingType = document.querySelector('#housing-type');
-  /** var housingPrice = document.querySelector('#housing-price');
+  var housingPrice = document.querySelector('#housing-price');
   var housingRooms = document.querySelector('#housing-rooms');
   var housingGuests = document.querySelector('#housing-guests');
-  var housingFeatures = document.querySelector('#housing-features'); */
+  var housingFeatures = document.querySelector('#housing-features');
 
-  var getHousingType = function (item) {
+  var filterHouse = function (item) {
     if (housingType.value === 'any') {
       return true;
     }
     return item.offer.type === housingType.value;
   };
 
-  /** var eyesColor;
-  var coatColor;
-
-  var getRank = function (wizard) {
-    var rank = 0;
-    if (wizard.colorCoat === coatColor) {
-      rank += 2;
+  var filterRooms = function (item) {
+    if (housingRooms.value === 'any') {
+      return true;
     }
-    if (wizard.colorEyes === eyesColor) {
-      rank += 1;
-    }
-    return rank;
-  }; */
+    return parseInt(housingRooms.value, 10) === item.offer.rooms;
+  };
 
-  var filterAll = function (array) {
-    return array
-    .filter(function (item) {
+  var filtergGuests = function (item) {
+    if (housingGuests.value === 'any') {
+      return true;
+    }
+    return parseInt(housingGuests.value, 10) >= item.offer.guests;
+  };
+
+  var filterPrice = function (item) {
+    switch (housingPrice.value) {
+      case PriceProperties.LOW_TYPE:
+        return item.offer.price < PriceProperties.MIN;
+      case PriceProperties.MID_TYPE:
+        return item.offer.price >= PriceProperties.MIN && item.offer.price <= PriceProperties.MAX;
+      case PriceProperties.HIGH_TYPE:
+        return item.offer.price > PriceProperties.MAX;
+      default:
+        return true;
+    }
+  };
+
+  var filterFeatures = function (item) {
+    return Array.from(housingFeatures.children)
+      .filter(function (feature) {
+        return feature.checked === true;
+      })
+      .map(function (feature) {
+        return feature.value;
+      })
+      .every(function (feature) {
+        return item.offer.features.indexOf(feature) !== -1;
+      });
+  };
+
+  var filterPins = function (array) {
+    return array.filter(function (element) {
       return (
-        getHousingType(item)
+        filterHouse(element) &&
+        filterRooms(element) &&
+        filtergGuests(element) &&
+        filterPrice(element) &&
+        filterFeatures(element)
       );
-    })
-    .slice(0, array.length);
+    });
   };
 
-  var onHousingTypeChange = function () {
+  var onFilterChange = window.debounce(function () {
     window.cards.deleteCard();
-    var pins = document.querySelectorAll('.added_pin');
-    for (var i = 0; i < pins.length; i++) {
-      window.mapPinsElement.removeChild(pins[i]);
-    }
-    window.pins.addPinElements(filterAll(window.adverts));
-  };
+    window.pins.removePins();
+    window.pins.addPinElements(filterPins(window.adverts));
+  });
 
-  housingType.addEventListener('input', onHousingTypeChange);
+  filters.addEventListener('input', onFilterChange);
 })();
-
-// window.adverts массив в глобальной области
