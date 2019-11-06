@@ -89,7 +89,7 @@
           <legend class="ad-form-header__title">Ваша фотография (для карты)</legend>
           <div class="ad-form-header__upload">
             <div class="ad-form-header__preview">
-              <img src="img/muffin-grey.svg" alt="Аватар пользователя" width="40" height="44">
+              <img src="img/muffin-grey.svg" alt="Аватар пользователя" width="40" height="44" class="ad-form-user__pic">
             </div>
             <div class="ad-form__field">
               <input type="file" id="avatar" name="avatar" class="ad-form-header__input visually-hidden">
@@ -173,7 +173,7 @@
           <label class="ad-form__label">Фотографии жилья</label>
           <div class="ad-form__photo-container">
             <div class="ad-form__upload">
-              <input type="file" id="images" name="images" class="ad-form__input visually-hidden">
+              <input type="file" id="images" name="images" class="ad-form__input visually-hidden" multiple>
               <label for="images" class="ad-form__drop-zone">Загрузите или&nbsp;перетащите сюда фото</label>
             </div>
             <div class="ad-form__photo"></div>
@@ -248,13 +248,15 @@
     </div>
   </template>
 <script src="js/debounce.js"></script>
-<script src="js/backend.js"></script>
 <script src="js/utils.js"></script>
-<script src="js/form.js"></script>
-<script src="js/data.js"></script>
-<script src="js/pins.js"></script> 
-<script src="js/main.js"></script>
+<script src="js/show_message.js"></script>
 <script src="js/filters.js"></script>
+<script src="js/upload_images.js"></script>
+<script src="js/backend.js"></script>
+<script src="js/form.js"></script>
+<script src="js/pins.js"></script>
+<script src="js/main_pin.js"></script>
+<script src="js/page_state.js"></script>
 <script src="js/card.js"></script>
 </body>
 </html>

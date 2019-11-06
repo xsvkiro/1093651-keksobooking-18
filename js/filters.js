@@ -1,6 +1,8 @@
 'use strict';
 
 (function () {
+  var filtersElement = document.querySelector('.map__filters');
+  var filtersChildElements = filtersElement.getElementsByTagName('*');
   var PriceProperties = {
     LOW_TYPE: 'low',
     MID_TYPE: 'middle',
@@ -8,12 +10,22 @@
     MIN: 10000,
     MAX: 50000
   };
+  var features = document.querySelector('.map__features');
   var filters = document.querySelector('.map__filters');
   var housingType = document.querySelector('#housing-type');
   var housingPrice = document.querySelector('#housing-price');
   var housingRooms = document.querySelector('#housing-rooms');
   var housingGuests = document.querySelector('#housing-guests');
   var housingFeatures = document.querySelector('#housing-features');
+  var resetButton = document.querySelector('.ad-form__reset');
+
+  var onEnterFeature = function (evt) {
+    if (evt.keyCode === window.utils.ENTER_KEYCODE) {
+      var feature = evt.target;
+      feature.checked = !feature.checked;
+      onFilterChange();
+    }
+  };
 
   var filterHouse = function (item) {
     if (housingType.value === 'any') {
@@ -81,4 +93,18 @@
   });
 
   filters.addEventListener('input', onFilterChange);
+  features.addEventListener('keydown', onEnterFeature);
+  resetButton.addEventListener('click', window.deactivatePage);
+
+  window.filters = {
+    enableFilters: function () {
+      window.utils.enableElement(filtersElement);
+      window.utils.enableElementInPseudoArray(filtersChildElements);
+    },
+    disableFilters: function () {
+      filtersElement.reset();
+      window.utils.disableElement(filtersElement);
+      window.utils.disableElementInPseudoArray(filtersChildElements);
+    }
+  };
 })();

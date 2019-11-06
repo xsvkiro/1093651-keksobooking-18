@@ -41,6 +41,7 @@
     onSuccessLoad: function (adverts) {
       window.adverts = Array.from(adverts);
       window.pins.addPinElements(window.adverts);
+      window.filters.enableFilters();
     }
   };
 })();
