@@ -1,33 +1,39 @@
 'use strict';
 
 (function () {
+  var MAIN_PIN_HEIGHT = 22;
+  var Y_MIN = 76;
+  var Y_MAX = 576;
+
   window.mainPinElement = document.querySelector('.map__pin--main');
-  var MAIN_PIN_DEFAULT_X = parseInt(window.mainPinElement.style.left, 10);
-  var MAIN_PIN_DEFAULT_Y = parseInt(window.mainPinElement.style.top, 10);
+  var halfWidth = Math.floor(window.mainPinElement.offsetWidth / 2);
+  var halfHeight = Math.floor(window.mainPinElement.offsetHeight / 2);
+  var defaultX = parseInt(window.mainPinElement.style.left, 10);
+  var defaultY = parseInt(window.mainPinElement.style.top, 10);
+
   var addressInputElement = document.querySelector('#address');
+
   window.setAddress = function (pageState) {
     addressInputElement.value = getMainPinCoordinates(pageState);
   };
 
   var getMainPinCoordinates = function (pageState) {
-    var xMainPin = parseInt(window.mainPinElement.style.left, 10);
-    var yMainPin = parseInt(window.mainPinElement.style.top, 10);
-    var MAIN_PIN_HEIGHT = 22;
-    var address;
+    var xMainPin = parseInt(window.mainPinElement.style.left, 10) + halfWidth;
+    var yMainPin = parseInt(window.mainPinElement.style.top, 10) + halfHeight;
+
     if (pageState) {
-      address = (xMainPin + Math.floor(window.mainPinElement.offsetWidth / 2)) + ', ' + (yMainPin + MAIN_PIN_HEIGHT + Math.floor(window.mainPinElement.offsetHeight / 2));
-    } else {
-      window.mainPinElement.style.left = MAIN_PIN_DEFAULT_X + 'px';
-      window.mainPinElement.style.top = MAIN_PIN_DEFAULT_Y + 'px';
-      address = (MAIN_PIN_DEFAULT_X + Math.floor(window.mainPinElement.offsetWidth / 2)) + ', ' + (MAIN_PIN_DEFAULT_Y + Math.floor(window.mainPinElement.offsetHeight / 2));
+      return (xMainPin) + ', ' + (yMainPin + MAIN_PIN_HEIGHT);
     }
-    return address;
+
+    window.mainPinElement.style.left = defaultX + 'px';
+    window.mainPinElement.style.top = defaultY + 'px';
+
+    return (defaultX + halfWidth) + ', ' + (defaultY + halfHeight);
   };
 
   var mouseMoveHandler = function (evt) {
     window.setAddress(true);
-    var Y_MIN = 76;
-    var Y_MAX = 576;
+
     var xMax = document.querySelector('.map__overlay').clientWidth - Math.floor(window.mainPinElement.offsetWidth / 2);
     var xMin = document.querySelector('.map__overlay').clientLeft - Math.floor(window.mainPinElement.offsetWidth / 2);
 
@@ -35,6 +41,7 @@
       x: evt.clientX,
       y: evt.clientY
     };
+
     var zIndex = window.getComputedStyle(window.mainPinElement).zIndex;
     window.mainPinElement.style.zIndex = ++zIndex;
 

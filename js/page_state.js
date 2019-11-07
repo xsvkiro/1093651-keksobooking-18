@@ -4,9 +4,11 @@
 
   var activatePageHandler = function () {
     window.mapElement.classList.remove('map--faded');
+
     window.backend.load(window.backend.onSuccessLoad, window.showMessage);
     window.form.enableForm();
     window.form.validateAdForms();
+
     window.mainPinElement.removeEventListener('mousedown', activatePageHandler);
     window.mainPinElement.removeEventListener('keydown', pressEnterOnPinHandler);
   };
@@ -18,10 +20,12 @@
   };
 
   window.deactivatePage = function () {
-    window.setAddress();
     window.filters.disableFilters();
     window.form.disableForm();
+    window.setAddress();
+
     window.mapElement.classList.add('map--faded');
+
     window.mainPinElement.addEventListener('mousedown', activatePageHandler);
     window.mainPinElement.addEventListener('keydown', pressEnterOnPinHandler);
     if (document.querySelector('.added_pin')) {

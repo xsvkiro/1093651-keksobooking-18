@@ -3,15 +3,18 @@
 (function () {
   var MAX_ROOM = '100';
   var MAX_PRICE = '1000000';
-  var submitButton = document.querySelector('.ad-form__submit');
-  var resetButton = document.querySelector('.ad-form__reset');
+
   var AccommodationPrice = {
     FLAT: '1000',
     BUNGALO: '0',
     HOUSE: '5000',
     PALACE: '10000'
   };
+
+  var submitButton = document.querySelector('.ad-form__submit');
+  var resetButton = document.querySelector('.ad-form__reset');
   var advertFormElement = document.querySelector('.ad-form');
+  var features = document.querySelector('.features');
   var advertElements = advertFormElement.getElementsByTagName('fieldset');
   var priceElement = advertFormElement.querySelector('#price');
   var accTypeElement = advertFormElement.querySelector('#type');
@@ -20,23 +23,26 @@
   var timeoutElement = advertFormElement.querySelector('#timeout');
   var selectRoomElement = advertFormElement.querySelector('#room_number');
   var selectGuestElement = advertFormElement.querySelector('#capacity');
+
   var notForGuests = selectGuestElement.length - 1;
   var defaultGuests = selectGuestElement.length - 2;
+
+  var validateGuests = function (el) {
+    if (el.value > selectRoomElement.value) {
+      window.utils.disableElement(el);
+    }
+  };
 
   var guestsValdationHandler = function () {
     window.utils.enableElementInPseudoArray(selectGuestElement);
 
+    window.utils.disableElement(selectGuestElement[notForGuests]);
+    selectGuestElement.selectedIndex = defaultGuests;
+    [].forEach.call(selectGuestElement, validateGuests);
+
     if (selectRoomElement.value === MAX_ROOM) {
       selectGuestElement.selectedIndex = notForGuests;
       window.utils.disableElementInPseudoArray(selectGuestElement);
-    } else {
-      window.utils.disableElement(selectGuestElement[notForGuests]);
-      selectGuestElement.selectedIndex = defaultGuests;
-      [].forEach.call(selectGuestElement, function (el) {
-        if (el.value > selectRoomElement.value) {
-          window.utils.disableElement(el);
-        }
-      });
     }
   };
 
@@ -72,6 +78,16 @@
     }
   };
 
+  var onEnterFeature = function (evt) {
+    if (evt.keyCode === window.utils.ENTER_KEYCODE) {
+      evt.preventDefault();
+      var feature = evt.target;
+      feature.checked = !feature.checked;
+    }
+  };
+
+  features.addEventListener('keydown', onEnterFeature);
+
   titleElement.addEventListener('input', titleValidationHandler);
   priceElement.addEventListener('input', priceValidationHandler);
 
@@ -99,11 +115,13 @@
       guestsValdationHandler();
       accomodationValdationHandler();
     },
+
     disableForm: function () {
       advertFormElement.reset();
       advertFormElement.classList.add('ad-form--disabled');
       window.utils.disableElementInPseudoArray(advertElements);
     },
+
     enableForm: function () {
       advertFormElement.classList.remove('ad-form--disabled');
       window.utils.enableElementInPseudoArray(advertElements);

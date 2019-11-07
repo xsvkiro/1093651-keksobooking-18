@@ -1,5 +1,4 @@
 'use strict';
-// идеально
 (function () {
   var DEBOUNCE_INTERVAL = 500;
 

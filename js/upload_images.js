@@ -10,36 +10,45 @@
 
   var checkMatch = function (el) {
     var fileName = el.name.toLowerCase();
+
     var matches = FILE_TYPES.some(function (it) {
       return fileName.endsWith(it);
     });
+
     return matches;
   };
 
   var addPhoto = function (el) {
     if (checkMatch(el)) {
       var reader = new FileReader();
+
       reader.addEventListener('load', function () {
         var photoElement = document.createElement('div');
         photoElement.classList.add('ad-form__photo');
         photoContainer.appendChild(photoElement);
+
         var photo = document.createElement('img');
         photo.style.height = '90%';
         photo.style.width = '90%';
-        photoElement.appendChild(photo);
         photo.src = reader.result;
+
+        photoElement.appendChild(photo);
       });
+
       reader.readAsDataURL(el);
     }
   };
 
   var onAvatarUpload = function () {
     var file = avatarChooser.files[0];
+
     if (checkMatch(file)) {
       var reader = new FileReader();
+
       reader.addEventListener('load', function () {
         avatarPreview.src = reader.result;
       });
+
       reader.readAsDataURL(file);
     }
   };
@@ -50,5 +59,6 @@
   };
 
   avatarChooser.addEventListener('change', onAvatarUpload);
+
   housingPhotoChooser.addEventListener('change', onHousePhotosUpload);
 })();
