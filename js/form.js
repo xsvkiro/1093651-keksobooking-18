@@ -11,10 +11,10 @@
     PALACE: '10000'
   };
 
-  var submitButton = document.querySelector('.ad-form__submit');
-  var resetButton = document.querySelector('.ad-form__reset');
+  var submitButtonElement = document.querySelector('.ad-form__submit');
+  var resetButtonElement = document.querySelector('.ad-form__reset');
   var advertFormElement = document.querySelector('.ad-form');
-  var features = document.querySelector('.features');
+  var featuresElement = document.querySelector('.features');
   var advertElements = advertFormElement.getElementsByTagName('fieldset');
   var priceElement = advertFormElement.querySelector('#price');
   var accTypeElement = advertFormElement.querySelector('#type');
@@ -33,7 +33,7 @@
     }
   };
 
-  var guestsValdationHandler = function () {
+  var onGuestsChange = function () {
     window.utils.enableElementInPseudoArray(selectGuestElement);
 
     window.utils.disableElement(selectGuestElement[notForGuests]);
@@ -46,13 +46,13 @@
     }
   };
 
-  var accomodationValdationHandler = function () {
+  var onAccomodationTypeChange = function () {
     priceElement.setAttribute('max', MAX_PRICE);
     priceElement.setAttribute('min', AccommodationPrice[accTypeElement.value.toUpperCase()]);
     priceElement.setAttribute('placeholder', AccommodationPrice[accTypeElement.value.toUpperCase()]);
   };
 
-  var priceValidationHandler = function () {
+  var onPriceChange = function () {
     if (!priceElement.reportValidity()) {
       priceElement.classList.add('ad-form__invalid');
     } else {
@@ -60,7 +60,7 @@
     }
   };
 
-  var titleValidationHandler = function () {
+  var onTitleChange = function () {
     if (!titleElement.reportValidity()) {
       titleElement.classList.add('ad-form__invalid');
     } else {
@@ -73,8 +73,8 @@
     if (priceElement.reportValidity() && titleElement.reportValidity()) {
       window.backend.save(new FormData(advertFormElement), window.showMessage, window.showMessage);
     } else {
-      titleValidationHandler();
-      priceValidationHandler();
+      onTitleChange();
+      onPriceChange();
     }
   };
 
@@ -86,14 +86,14 @@
     }
   };
 
-  features.addEventListener('keydown', onEnterFeature);
+  featuresElement.addEventListener('keydown', onEnterFeature);
 
-  titleElement.addEventListener('input', titleValidationHandler);
-  priceElement.addEventListener('input', priceValidationHandler);
+  titleElement.addEventListener('input', onTitleChange);
+  priceElement.addEventListener('input', onPriceChange);
 
-  selectRoomElement.addEventListener('input', guestsValdationHandler);
+  selectRoomElement.addEventListener('input', onGuestsChange);
 
-  accTypeElement.addEventListener('input', accomodationValdationHandler);
+  accTypeElement.addEventListener('input', onAccomodationTypeChange);
 
   timeinElement.addEventListener('input', function () {
     timeoutElement.value = timeinElement.value;
@@ -103,17 +103,17 @@
     timeinElement.value = timeoutElement.value;
   });
 
-  submitButton.addEventListener('click', onSubmitButton);
+  submitButtonElement.addEventListener('click', onSubmitButton);
 
-  resetButton.addEventListener('click', function (evt) {
+  resetButtonElement.addEventListener('click', function (evt) {
     evt.preventDefault();
     window.deactivatePage();
   });
 
   window.form = {
     validateAdForms: function () {
-      guestsValdationHandler();
-      accomodationValdationHandler();
+      onGuestsChange();
+      onAccomodationTypeChange();
     },
 
     disableForm: function () {

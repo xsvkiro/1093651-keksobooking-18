@@ -2,11 +2,11 @@
 
 (function () {
   var FILE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
-  var avatarChooser = document.querySelector('.ad-form-header__input');
-  var avatarPreview = document.querySelector('.ad-form-user__pic');
-  var housingPhotoChooser = document.querySelector('.ad-form__input');
-  var housingPreview = document.querySelector('.ad-form__photo');
-  var photoContainer = document.querySelector('.ad-form__photo-container');
+  var avatarChooserElement = document.querySelector('.ad-form-header__input');
+  var avatarPreviewElement = document.querySelector('.ad-form-user__pic');
+  var housingPhotoChooserElement = document.querySelector('.ad-form__input');
+  var housingPreviewElement = document.querySelector('.ad-form__photo');
+  var photoContainerElement = document.querySelector('.ad-form__photo-container');
 
   var checkMatch = function (el) {
     var fileName = el.name.toLowerCase();
@@ -23,16 +23,16 @@
       var reader = new FileReader();
 
       reader.addEventListener('load', function () {
-        var photoElement = document.createElement('div');
-        photoElement.classList.add('ad-form__photo');
-        photoContainer.appendChild(photoElement);
+        var photoParentElement = document.createElement('div');
+        photoParentElement.classList.add('ad-form__photo');
+        photoContainerElement.appendChild(photoParentElement);
 
-        var photo = document.createElement('img');
-        photo.style.height = '90%';
-        photo.style.width = '90%';
-        photo.src = reader.result;
+        var photoElement = document.createElement('img');
+        photoElement.style.height = '90%';
+        photoElement.style.width = '90%';
+        photoElement.src = reader.result;
 
-        photoElement.appendChild(photo);
+        photoParentElement.appendChild(photoElement);
       });
 
       reader.readAsDataURL(el);
@@ -40,13 +40,13 @@
   };
 
   var onAvatarUpload = function () {
-    var file = avatarChooser.files[0];
+    var file = avatarChooserElement.files[0];
 
     if (checkMatch(file)) {
       var reader = new FileReader();
 
       reader.addEventListener('load', function () {
-        avatarPreview.src = reader.result;
+        avatarPreviewElement.src = reader.result;
       });
 
       reader.readAsDataURL(file);
@@ -54,11 +54,11 @@
   };
 
   var onHousePhotosUpload = function () {
-    photoContainer.removeChild(housingPreview);
-    [].forEach.call(housingPhotoChooser.files, addPhoto);
+    photoContainerElement.removeChild(housingPreviewElement);
+    [].forEach.call(housingPhotoChooserElement.files, addPhoto);
   };
 
-  avatarChooser.addEventListener('change', onAvatarUpload);
+  avatarChooserElement.addEventListener('change', onAvatarUpload);
 
-  housingPhotoChooser.addEventListener('change', onHousePhotosUpload);
+  housingPhotoChooserElement.addEventListener('change', onHousePhotosUpload);
 })();

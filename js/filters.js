@@ -12,13 +12,12 @@
 
   var filtersElement = document.querySelector('.map__filters');
   var filtersChildElements = filtersElement.getElementsByTagName('*');
-  var features = document.querySelector('.map__features');
-  var filters = document.querySelector('.map__filters');
-  var housingType = document.querySelector('#housing-type');
-  var housingPrice = document.querySelector('#housing-price');
-  var housingRooms = document.querySelector('#housing-rooms');
-  var housingGuests = document.querySelector('#housing-guests');
-  var resetButton = document.querySelector('.ad-form__reset');
+  var featuresElement = document.querySelector('.map__features');
+  var housingTypeElement = document.querySelector('#housing-type');
+  var housingPriceElement = document.querySelector('#housing-price');
+  var housingRoomsElement = document.querySelector('#housing-rooms');
+  var housingGuestsElement = document.querySelector('#housing-guests');
+  var resetButtonElement = document.querySelector('.ad-form__reset');
 
   var onEnterFeature = function (evt) {
     if (evt.keyCode === window.utils.ENTER_KEYCODE) {
@@ -29,19 +28,19 @@
   };
 
   var filterHouse = function (pin) {
-    return housingType.value === ANY_VALUE || pin.offer.type === housingType.value;
+    return housingTypeElement.value === ANY_VALUE || pin.offer.type === housingTypeElement.value;
   };
 
   var filterRooms = function (pin) {
-    return housingRooms.value === ANY_VALUE || parseInt(housingRooms.value, 10) === pin.offer.rooms;
+    return housingRoomsElement.value === ANY_VALUE || parseInt(housingRoomsElement.value, 10) === pin.offer.rooms;
   };
 
   var filterGuests = function (pin) {
-    return housingGuests.value === ANY_VALUE || parseInt(housingGuests.value, 10) >= pin.offer.guests;
+    return housingGuestsElement.value === ANY_VALUE || parseInt(housingGuestsElement.value, 10) >= pin.offer.guests;
   };
 
   var filterPrice = function (pin) {
-    switch (housingPrice.value) {
+    switch (housingPriceElement.value) {
       case PriceProperties.LOW_TYPE:
         return pin.offer.price < PriceProperties.MIN;
       case PriceProperties.MID_TYPE:
@@ -79,9 +78,9 @@
     window.pins.addPinElements(filterPins(window.adverts));
   });
 
-  filters.addEventListener('input', onFilterChange);
-  features.addEventListener('keydown', onEnterFeature);
-  resetButton.addEventListener('click', window.deactivatePage);
+  filtersElement.addEventListener('input', onFilterChange);
+  featuresElement.addEventListener('keydown', onEnterFeature);
+  resetButtonElement.addEventListener('click', window.deactivatePage);
 
   window.filters = {
     enableFilters: function () {
